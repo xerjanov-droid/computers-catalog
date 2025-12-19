@@ -1,6 +1,8 @@
 -- Categories
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL PRIMARY KEY,
+  parent_id INT REFERENCES categories(id),
+  slug VARCHAR(100) UNIQUE,
   name_ru VARCHAR(100) NOT NULL,
   name_uz VARCHAR(100) NOT NULL,
   name_en VARCHAR(100) NOT NULL,
@@ -26,6 +28,8 @@ CREATE TABLE IF NOT EXISTS products (
   wifi BOOLEAN DEFAULT false,
   duplex BOOLEAN DEFAULT false,
   
+  specs JSONB DEFAULT '{}'::jsonb, -- New dynamic specs container
+
   price NUMERIC(12,2) DEFAULT 0,
   currency VARCHAR(5) DEFAULT 'UZS',
   
@@ -39,14 +43,6 @@ CREATE TABLE IF NOT EXISTS products (
   
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP
-);
-
--- Product Specs (Detailed)
-CREATE TABLE IF NOT EXISTS product_specs (
-  id SERIAL PRIMARY KEY,
-  product_id INT REFERENCES products(id) ON DELETE CASCADE,
-  spec_key VARCHAR(100) NOT NULL,
-  spec_value VARCHAR(255) NOT NULL
 );
 
 -- Product Images

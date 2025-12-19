@@ -4,13 +4,14 @@ import { SearchBar } from '@/components/SearchBar';
 import { CategorySlider } from '@/components/CategorySlider';
 import { ProductCard } from '@/components/ProductCard';
 import { FloatingManagerButton } from '@/components/FloatingManagerButton';
-import { Filters } from '@/components/Filters';
+import { FilterWrapper } from '@/components/FilterWrapper';
 import { TranslatedText } from '@/components/TranslatedText';
 import { ClientOnly } from '@/components/ClientOnly';
 
 export const dynamic = 'force-dynamic';
 
 import { SubCategoryList } from '@/components/SubCategoryList';
+import { CurrentCategoryTitle } from '@/components/CurrentCategoryTitle';
 
 // ... imports
 
@@ -27,8 +28,20 @@ export default async function Home({
   const categoryId = resolvedParams.category ? Number(resolvedParams.category) : undefined;
   const subId = resolvedParams.sub ? Number(resolvedParams.sub) : undefined;
 
+  // Helper to parse comma-separated params
+  const parseArrayParam = (param?: string | string[]) => {
+    if (!param) return undefined;
+    const str = Array.isArray(param) ? param[0] : param;
+    return str.split(',').filter(Boolean);
+  };
+
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : undefined;
-  const technology = typeof resolvedParams.technology === 'string' ? resolvedParams.technology : undefined;
+  // Parse technology and color as arrays
+  const technology = parseArrayParam(resolvedParams.technology as string);
+  const color = parseArrayParam(resolvedParams.color as string);
+
+  // Wifi is boolean-ish 'true'
+  const wifi = resolvedParams.wifi === 'true';
 
   // Find active root to get its children
   const activeRoot = categoryId ? categoryTree.find(c => c.id === categoryId) : undefined;
@@ -39,6 +52,8 @@ export default async function Home({
     sub: subId,
     search: search,
     technology: technology,
+    color: color,
+    wifi: wifi ? true : undefined,
   });
 
   // Hydration fix handled by wrapper now
@@ -59,13 +74,16 @@ export default async function Home({
             )}
           </section>
 
+
+
           <section className="px-5 flex justify-between items-center pt-2">
             <h2 className="text-xl font-extrabold text-[#111827]">
-              {subId
-                ? subCategories.find(s => s.id === subId)?.name_ru
-                : (activeRoot ? activeRoot.name_ru : <TranslatedText i18nKey="popular" />)}
+              <CurrentCategoryTitle
+                category={subId ? subCategories.find(s => s.id === subId) : activeRoot}
+              />
             </h2>
-            <Filters />
+            {/* Pass inferred category slug. Logic: Use english name lowercased, fallback to printers if needed for testing */}
+            <FilterWrapper categorySlug={activeRoot?.name_en.toLowerCase()} />
           </section>
 
           <section className="px-4 grid grid-cols-2 gap-3">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ChevronLeft, Heart, FileText, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProductHeader } from '@/components/ProductHeader';
+import { ProductCharacteristics } from '@/components/ProductCharacteristics';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,26 +66,7 @@ export default async function ProductPage({
                 {/* Specs */}
                 <div>
                     <h2 className="text-lg font-bold mb-3">Характеристики</h2>
-                    <div className="space-y-2 text-sm">
-                        <div className="flex justify-between border-b border-[var(--tg-theme-hint-color)]/10 pb-2">
-                            <span className="text-[var(--tg-theme-hint-color)]">Технология</span>
-                            <span>{product.technology}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-[var(--tg-theme-hint-color)]/10 pb-2">
-                            <span className="text-[var(--tg-theme-hint-color)]">Формат</span>
-                            <span>{product.format}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-[var(--tg-theme-hint-color)]/10 pb-2">
-                            <span className="text-[var(--tg-theme-hint-color)]">Wi-Fi</span>
-                            <span>{product.wifi ? 'Есть' : 'Нет'}</span>
-                        </div>
-                        {product.specs && product.specs.map((spec) => (
-                            <div key={spec.id} className="flex justify-between border-b border-[var(--tg-theme-hint-color)]/10 pb-2">
-                                <span className="text-[var(--tg-theme-hint-color)]">{spec.spec_key}</span>
-                                <span>{spec.spec_value}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <ProductCharacteristics product={product} />
                 </div>
 
                 {/* Documents */}

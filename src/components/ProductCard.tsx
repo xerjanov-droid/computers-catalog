@@ -1,6 +1,7 @@
 import { Product } from '@/types';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { ProductCharacteristics } from './ProductCharacteristics';
 
 interface ProductCardProps {
     product: Product;
@@ -36,9 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Content */}
                 <div className="flex-1 flex flex-col pt-2">
                     <p className="text-xs font-medium text-gray-500 mb-1">{product.brand}</p>
-                    <h3 className="text-[15px] font-bold leading-snug line-clamp-2 mb-3 flex-1 text-[var(--tg-theme-text-color)]">
+                    <h3 className="text-[15px] font-bold leading-snug line-clamp-2 mb-2 flex-1 text-[var(--tg-theme-text-color)]">
                         {product.title_ru}
                     </h3>
+
+                    {/* Dynamic Characteristics */}
+                    <div className="mb-3">
+                        <ProductCharacteristics product={product} />
+                    </div>
 
                     <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
                         <div className="flex flex-col">
