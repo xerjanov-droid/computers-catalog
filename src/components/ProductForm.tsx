@@ -4,13 +4,17 @@ import { Product } from '@/types';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useTranslation } from 'react-i18next';
+
 interface ProductFormProps {
     initialData?: Product;
 }
 
 export function ProductForm({ initialData }: ProductFormProps) {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+
 
     // Category state
     const [categories, setCategories] = useState<any[]>([]);
@@ -31,13 +35,21 @@ export function ProductForm({ initialData }: ProductFormProps) {
     }, [initialData]);
 
     // Minimal state for demo. Real app needs form library (react-hook-form) + zod
-    const [formData, setFormData] = useState<Partial<Product>>(initialData || {
-        status: 'in_stock',
-        technology: 'laser',
-        currency: 'UZS',
-        wifi: false,
-        duplex: false,
-        color_print: false,
+    const [formData, setFormData] = useState<Partial<Product>>(() => {
+        if (initialData) {
+            return {
+                ...initialData,
+                status: initialData.status === 'pre_order' ? 'on_order' : initialData.status
+            };
+        }
+        return {
+            status: 'in_stock',
+            technology: 'laser',
+            currency: 'UZS',
+            wifi: false,
+            duplex: false,
+            color_print: false,
+        };
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -179,9 +191,9 @@ export function ProductForm({ initialData }: ProductFormProps) {
             <div>
                 <label className="block text-sm font-medium mb-1">Status</label>
                 <select name="status" className="w-full border p-2 rounded" value={formData.status} onChange={handleChange}>
-                    <option value="in_stock">In Stock</option>
-                    <option value="pre_order">Pre-Order</option>
-                    <option value="showroom">Showroom</option>
+                    <option value="in_stock">{t('availability.in_stock')}</option>
+                    <option value="on_order">{t('availability.on_order')}</option>
+                    <option value="showroom">{t('availability.showroom')}</option>
                 </select>
             </div>
 

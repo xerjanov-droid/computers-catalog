@@ -3,6 +3,11 @@
     "all": "Все",
     "price": "Цена",
     "in_stock": "В наличии",
+    "availability": {
+        "in_stock": "В наличии",
+        "on_order": "Под заказ",
+        "showroom": "В шоуруме"
+    },
     "filters": {
         "title": "Фильтры",
         "technology": "Технология",
@@ -13,7 +18,27 @@
         "bw": "Черно-белый",
         "wifi": "Wi-Fi",
         "show_results": "Показать результаты",
-        "clear_filters": "Очистить фильтры"
+        "clear_filters": "Очистить фильтры",
+        "clear": "Очистить",
+        "price_title": "Цена, стоимость, сум",
+        "from": "от",
+        "to": "до"
+    },
+    "product": {
+        "price_with_vat": "Цена с НДС",
+        "article": "Артикул",
+        "key_specs": "Основные характеристики",
+        "all_specs": "Все характеристики",
+        "request_invoice": "Запросить счет",
+        "ask_question": "Задать вопрос",
+        "documentation": "Документация",
+        "manual": "Инструкция пользователя",
+        "datasheet": "Техническая спецификация"
+    },
+    "trust": {
+        "warranty": "Официальная гарантия",
+        "original": "Оригинальный товар",
+        "delivery_free": "Доставка по городу - Бесплатно"
     },
     "characteristics": {
         "technology": "Технология",

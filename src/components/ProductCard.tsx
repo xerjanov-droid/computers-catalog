@@ -1,28 +1,25 @@
+'use client';
+
 import { Product } from '@/types';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ProductCharacteristics } from './ProductCharacteristics';
+// import { useTranslation } from 'react-i18next'; // Not needed if AvailabilityBadge handles it, but ProductCard is client anyway
+import { AvailabilityBadge } from './AvailabilityBadge';
 
 interface ProductCardProps {
     product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+    // const { t } = useTranslation(); // encapsulation
+
     return (
         <Link href={`/product/${product.id}`} className="block h-full">
             <div className="bg-[var(--tg-theme-bg-color)] rounded-2xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--tg-theme-hint-color)]/30 relative h-full flex flex-col hover:shadow-md transition-shadow">
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3 z-10">
-                    <span className={cn(
-                        "text-[10px] px-2 py-1 rounded-full font-bold",
-                        product.status === 'in_stock' && "bg-green-100 text-green-700",
-                        product.status === 'pre_order' && "bg-yellow-100 text-yellow-700",
-                        product.status === 'showroom' && "bg-blue-100 text-blue-700"
-                    )}>
-                        {product.status === 'in_stock' && '🟢 В наличии'}
-                        {product.status === 'pre_order' && `🟡 ${product.delivery_days} дн.`}
-                        {product.status === 'showroom' && '🔵 Шоурум'}
-                    </span>
+                    <AvailabilityBadge status={product.status} className="text-[10px]" />
                 </div>
 
                 {/* Image */}

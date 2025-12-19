@@ -10,6 +10,9 @@ interface ProductFilters {
     wifi?: boolean;
     format?: string;
     sort?: 'price_asc' | 'price_desc' | 'popular' | 'stock';
+    availability?: string[];
+    price_from?: number;
+    price_to?: number;
 }
 
 export class ProductService {
@@ -30,6 +33,27 @@ export class ProductService {
     `;
         const params: any[] = [];
         let paramIndex = 1;
+
+        if (filters.price_from) {
+            sql += ` AND p.price >= $${paramIndex++}`;
+            params.push(filters.price_from);
+        }
+
+        if (filters.price_to) {
+            sql += ` AND p.price <= $${paramIndex++}`;
+            params.push(filters.price_to);
+        }
+
+        if (filters.availability && filters.availability.length > 0) {
+            // Handle legacy 'pre_order' status mapping to 'on_order'
+            const statusValues = [...filters.availability];
+            if (statusValues.includes('on_order') && !statusValues.includes('pre_order')) {
+                statusValues.push('pre_order');
+            }
+
+            sql += ` AND p.status = ANY($${paramIndex++}::text[])`;
+            params.push(statusValues);
+        }
 
         if (filters.sub) {
             // Precise subcategory match

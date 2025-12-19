@@ -1,195 +1,220 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
-
-import {
-    CATEGORY_FILTERS_MAP,
-    FILTER_DEFINITIONS,
-    FilterKey,
-} from "@/config/filters";
-
-type FiltersState = Partial<Record<FilterKey, string[]>>;
-
-function parseArrayParam(param?: string | null): string[] | undefined {
-    if (!param) return undefined;
-    return param.split(",").filter(Boolean);
-}
+import { cn } from "@/lib/utils";
+import { DualRangeSlider } from "./DualRangeSlider";
 
 interface FiltersProps {
-    category: string;      // current category slug
-    onClose: () => void;   // modal close handler
+    category?: string; // Not used but kept for interface compatibility
+    onClose: () => void;
 }
 
-export default function Filters({ category, onClose }: FiltersProps) {
+const AVAILABILITY_OPTIONS = ['in_stock', 'on_order', 'showroom'];
+const MAX_PRICE = 50000000; // Hardcoded max price per TT
+const PRICE_STEP = 10000;
+
+export default function Filters({ onClose }: FiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { t } = useTranslation("common");
+    const { t } = useTranslation();
 
-    const availableFilters = useMemo(() => CATEGORY_FILTERS_MAP[category] || [], [category]);
+    const [selected, setSelected] = useState<string[]>([]);
 
-    const [filters, setFilters] = useState<FiltersState>({});
+    // Price State
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, MAX_PRICE]);
+    const [priceInputFrom, setPriceInputFrom] = useState<string>("");
+    const [priceInputTo, setPriceInputTo] = useState<string>("");
 
     useEffect(() => {
-        const initial: FiltersState = {};
+        // Avail
+        const param = searchParams.get('availability');
+        if (param) {
+            setSelected(param.split(',').filter(Boolean));
+        } else {
+            setSelected([]);
+        }
 
-        availableFilters.forEach((key) => {
-            const param = searchParams.get(key);
-            const values = parseArrayParam(param);
-            if (values?.length) {
-                initial[key] = values;
-            }
-        });
+        // Price
+        const pFrom = searchParams.get('price_from');
+        const pTo = searchParams.get('price_to');
 
-        setFilters(initial);
-    }, [availableFilters, searchParams]);
+        const newMin = pFrom ? Number(pFrom) : 0;
+        const newMax = pTo ? Number(pTo) : MAX_PRICE;
 
-    function toggleFilter(key: FilterKey, value: string) {
-        setFilters((prev) => {
-            const current = prev[key] ?? [];
+        setPriceRange([newMin, newMax]);
+        setPriceInputFrom(pFrom || "");
+        setPriceInputTo(pTo || "");
 
-            if (current.includes(value)) {
-                const next = current.filter((v) => v !== value);
-                if (!next.length) {
-                    const { [key]: _, ...rest } = prev;
-                    return rest;
-                }
-                return { ...prev, [key]: next };
-            }
+    }, [searchParams]);
 
-            return { ...prev, [key]: [...current, value] };
-        });
-    }
+    const toggle = (key: string) => {
+        setSelected(prev =>
+            prev.includes(key)
+                ? prev.filter(k => k !== key)
+                : [...prev, key]
+        );
+    };
 
-    function applyFilters() {
+    const handleSliderChange = (val: [number, number]) => {
+        setPriceRange(val);
+        setPriceInputFrom(val[0].toString());
+        setPriceInputTo(val[1].toString());
+    };
+
+    const handleInputChange = (type: 'from' | 'to', value: string) => {
+        // Allow empty string for UX
+        if (type === 'from') setPriceInputFrom(value);
+        else setPriceInputTo(value);
+
+        const numVal = parseInt(value.replace(/\s/g, '')) || 0;
+
+        if (type === 'from') {
+            // Don't enforce min > max strictly while typing, allow loose
+            setPriceRange([numVal, priceRange[1]]);
+        } else {
+            setPriceRange([priceRange[0], numVal || MAX_PRICE]);
+        }
+    };
+
+    const apply = () => {
         const params = new URLSearchParams(searchParams.toString());
 
-        availableFilters.forEach((key) => {
-            params.delete(key);
-        });
+        // Avail
+        if (selected.length > 0) {
+            params.set('availability', selected.join(','));
+        } else {
+            params.delete('availability');
+        }
 
-        Object.entries(filters).forEach(([key, values]) => {
-            if (values?.length) {
-                params.set(key, values.join(","));
-            }
-        });
+        // Price
+        // Only set if different from default or explicitly set
+        // Logic: if input is empty, don't set param (unless previously set?)
+        // TT says: if from/to is null -> don't send.
+
+        // Use parsed integer values ensuring valid number
+        const finalFrom = parseInt(priceInputFrom.replace(/\s/g, ''));
+        const finalTo = parseInt(priceInputTo.replace(/\s/g, ''));
+
+        if (!isNaN(finalFrom) && priceInputFrom !== "") {
+            params.set('price_from', finalFrom.toString());
+        } else {
+            params.delete('price_from');
+        }
+
+        if (!isNaN(finalTo) && priceInputTo !== "") {
+            params.set('price_to', finalTo.toString());
+        } else {
+            params.delete('price_to');
+        }
 
         router.replace(`?${params.toString()}`);
         onClose();
-    }
+    };
 
-    function clearFilters() {
-        const params = new URLSearchParams(searchParams.toString());
-        availableFilters.forEach((key) => params.delete(key));
-        router.replace(`?${params.toString()}`);
-        onClose();
-    }
+    const clear = () => {
+        setSelected([]);
+        setPriceRange([0, MAX_PRICE]);
+        setPriceInputFrom("");
+        setPriceInputTo("");
+    };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/40 animate-fade-in text-left">
-            <div className="absolute bottom-0 w-full rounded-t-2xl bg-[var(--tg-theme-bg-color)] max-h-[85vh] flex flex-col animate-slide-up shadow-2xl">
-
+        <div className="fixed inset-0 z-50 bg-black/40 animate-fade-in text-left flex flex-col justify-end">
+            <div className="w-full rounded-t-2xl bg-[var(--tg-theme-bg-color)] max-h-[85vh] flex flex-col animate-slide-up shadow-2xl">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-[var(--tg-theme-hint-color)]/10">
-                    <h2 className="font-bold text-lg">{t("filters.title")}</h2>
-                    <button onClick={onClose} className="p-2">✕</button>
+                <div className="flex items-center justify-between p-5 pb-2">
+                    <h2 className="font-extrabold text-2xl tracking-tight">{t("filters.title")}</h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500"
+                    >
+                        &times;
+                    </button>
                 </div>
 
                 {/* Body */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {availableFilters.map((key) => {
-                        const def = FILTER_DEFINITIONS[key];
-                        // Render logic based on definition type if needed, or skeleton simple map
-                        // Skeleton assumes options property exists for rendering chips.
-                        // For boolean type, we might not have 'options'.
-                        // TZ skeleton implemented `def.options.map`.
-                        // But 'wifi' is boolean and has no options in config.
-                        // I should handle boolean type explicitly or ensure options exist.
-                        // TZ Skeleton logic:
-                        // if (!def.options) return null; -> This hides boolean filters!
-                        // Wait, TZ requested Skeleton has `if (!def.options) return null;`
-                        // But `wifi` is boolean.
-                        // I should check if user wants me to FIX the skeleton logic or follow it blindly?
-                        // "Filters.tsx — Ready Skeleton".
-                        // If I follow blindly, boolean filters won't show.
-                        // BUT Section 1.3 says "Toggle xatti-harakat".
-                        // I will assume the skeleton logic for `options` mapping applies to select types.
-                        // I will add a check for `type === 'boolean'`.
+                <div className="p-5 space-y-8 overflow-y-auto">
+                    {/* Status Section */}
+                    <div>
+                        {/* Removed redundant "STATUS" label or made it subtle */}
+                        <div className="flex flex-wrap gap-3">
+                            {AVAILABILITY_OPTIONS.map((key) => {
+                                const active = selected.includes(key);
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => toggle(key)}
+                                        className={cn(
+                                            "flex-1 min-w-[30%] px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 active:scale-95 flex justify-center items-center text-center",
+                                            active
+                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-600 ring-offset-2"
+                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200 border-transparent"
+                                        )}
+                                    >
+                                        {t(`availability.${key}`)}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
 
-                        if (def.type === 'boolean') {
-                            const isActive = filters[key]?.includes('true');
-                            return (
-                                <div key={key}>
-                                    <h3 className="mb-2 text-sm font-medium text-[var(--tg-theme-hint-color)] uppercase tracking-wider">
-                                        {t(def.labelKey)}
-                                    </h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        <button
-                                            onClick={() => toggleFilter(key, 'true')}
-                                            className={`px-4 py-2 rounded-full border text-sm font-medium transition-all
-                                  ${isActive
-                                                    ? "bg-[var(--tg-theme-button-color)] text-white border-transparent"
-                                                    : "bg-transparent border-[var(--tg-theme-hint-color)]/20 text-[var(--tg-theme-text-color)]"
-                                                }`}
-                                        >
-                                            {t(def.labelKey)}
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        }
+                    {/* Price Section */}
+                    <div className="bg-gray-50 p-4 rounded-3xl border border-gray-100 space-y-4">
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">{t("filters.price_title")}</h3>
 
-                        if (!def.options) return null;
-
-                        return (
-                            <div key={key}>
-                                <h3 className="mb-2 text-sm font-medium text-[var(--tg-theme-hint-color)] uppercase tracking-wider">
-                                    {t(def.labelKey)}
-                                </h3>
-
-                                <div className="flex flex-wrap gap-2">
-                                    {def.options.map((opt) => {
-                                        const active = filters[key]?.includes(opt.value);
-
-                                        return (
-                                            <button
-                                                key={opt.value}
-                                                onClick={() => toggleFilter(key, opt.value)}
-                                                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all
-                          ${active
-                                                        ? "bg-[var(--tg-theme-button-color)] text-white border-transparent"
-                                                        : "bg-transparent border-[var(--tg-theme-hint-color)]/20 text-[var(--tg-theme-text-color)]"
-                                                    }`}
-                                            >
-                                                {t(opt.labelKey)}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                        <div className="flex items-center gap-3">
+                            <div className="flex-1 relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{t("filters.from")}</span>
+                                <input
+                                    type="number"
+                                    value={priceInputFrom}
+                                    onChange={(e) => handleInputChange('from', e.target.value)}
+                                    className="w-full pl-8 pr-3 py-3 rounded-xl border-none bg-white shadow-sm font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="0"
+                                />
                             </div>
-                        );
-                    })}
+                            <div className="flex-1 relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{t("filters.to")}</span>
+                                <input
+                                    type="number"
+                                    value={priceInputTo}
+                                    onChange={(e) => handleInputChange('to', e.target.value)}
+                                    className="w-full pl-8 pr-3 py-3 rounded-xl border-none bg-white shadow-sm font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder={MAX_PRICE.toString()}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="px-2 pt-2">
+                            <DualRangeSlider
+                                min={0}
+                                max={MAX_PRICE}
+                                value={priceRange}
+                                step={PRICE_STEP}
+                                onChange={handleSliderChange}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-[var(--tg-theme-hint-color)]/10 p-4 flex gap-2 bg-[var(--tg-theme-bg-color)]">
-                    {/* Skeleton had border buttons, sticking to theme */}
+                <div className="p-5 pt-2 flex gap-3 pb-8 bg-white border-t border-gray-50">
                     <button
-                        onClick={clearFilters}
-                        className="flex-1 border border-[var(--tg-theme-hint-color)]/20 rounded-xl py-3 text-sm font-bold text-[var(--tg-theme-hint-color)]"
+                        onClick={clear}
+                        className="flex-1 bg-gray-100 text-gray-600 rounded-2xl py-4 text-sm font-bold transition-colors hover:bg-gray-200"
                     >
-                        {t("filters.clear_filters")}
+                        {t("filters.clear")}
                     </button>
 
                     <button
-                        onClick={applyFilters}
-                        className="flex-1 bg-[var(--tg-theme-button-color)] text-white rounded-xl py-3 text-sm font-bold shadow-lg"
+                        onClick={apply}
+                        className="flex-[2] bg-black text-white rounded-2xl py-4 text-sm font-bold shadow-xl active:scale-95 transition-all"
                     >
                         {t("filters.show_results")}
                     </button>
                 </div>
-
             </div>
         </div>
     );

@@ -3,6 +3,11 @@
   "all": "All",
   "price": "Price",
   "in_stock": "In stock",
+  "availability": {
+    "in_stock": "In stock",
+    "on_order": "On order",
+    "showroom": "In showroom"
+  },
   "filters": {
     "title": "Filters",
     "technology": "Technology",
@@ -13,7 +18,27 @@
     "bw": "Black & White",
     "wifi": "Wi-Fi",
     "show_results": "Show Results",
-    "clear_filters": "Clear Filters"
+    "clear_filters": "Clear Filters",
+    "clear": "Clear",
+    "price_title": "Price, value (UZS)",
+    "from": "from",
+    "to": "to"
+  },
+  "product": {
+    "price_with_vat": "Price with VAT",
+    "article": "SKU",
+    "key_specs": "Key Characteristics",
+    "all_specs": "All Specifications",
+    "request_invoice": "Request Invoice",
+    "ask_question": "Ask Question",
+    "documentation": "Documentation",
+    "manual": "User Manual",
+    "datasheet": "Datasheet Specification"
+  },
+  "trust": {
+    "warranty": "Official Warranty",
+    "original": "Original Product",
+    "delivery_free": "Free Delivery in Tashkent"
   },
   "characteristics": {
     "cpu": "CPU",

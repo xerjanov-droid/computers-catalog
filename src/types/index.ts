@@ -22,7 +22,7 @@ export interface Product {
     title_en?: string;
     price: number;
     currency: string;
-    status: 'in_stock' | 'pre_order' | 'showroom';
+    status: 'in_stock' | 'pre_order' | 'on_order' | 'showroom';
     delivery_days?: number;
     short_specs_ru?: string;
     short_specs_uz?: string;
@@ -42,6 +42,7 @@ export interface Product {
     color_print?: boolean;
     format?: string;
     wifi?: boolean;
+    duplex?: boolean;
 }
 
 export interface B2BRequest {

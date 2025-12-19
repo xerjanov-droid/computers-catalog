@@ -25,6 +25,9 @@ export function SubCategoryList({ subCategories, parentId }: SubCategoryListProp
         return cat.name_ru;
     };
 
+    const ACTIVE_STYLE = "bg-green-600 border-green-600 text-white";
+    const INACTIVE_STYLE = "bg-white text-gray-600 border-gray-200 hover:bg-gray-50";
+
     return (
         <div className="w-full overflow-x-auto pb-4 pt-1 no-scrollbar flex gap-2 px-4">
             {/* "All" Chip */}
@@ -32,28 +35,28 @@ export function SubCategoryList({ subCategories, parentId }: SubCategoryListProp
                 href={`/?category=${parentId}`}
                 className={cn(
                     "px-4 py-2 rounded-full text-[13px] font-bold transition-all whitespace-nowrap border shadow-sm",
-                    !activeSub
-                        ? "bg-black text-white border-black"
-                        : "bg-white text-gray-700 border-gray-200"
+                    !activeSub ? ACTIVE_STYLE : INACTIVE_STYLE
                 )}
             >
                 {t('all')}
             </Link>
 
-            {subCategories.map((sub) => (
-                <Link
-                    key={sub.id}
-                    href={`/?category=${parentId}&sub=${sub.id}`}
-                    className={cn(
-                        "px-4 py-2 rounded-full text-[13px] font-bold transition-all whitespace-nowrap border shadow-sm",
-                        activeSub === String(sub.id)
-                            ? "bg-black text-white border-black"
-                            : "bg-white text-gray-700 border-gray-200"
-                    )}
-                >
-                    {getCategoryName(sub)}
-                </Link>
-            ))}
+            {subCategories.map((sub) => {
+                const isActive = activeSub === String(sub.id);
+
+                return (
+                    <Link
+                        key={sub.id}
+                        href={`/?category=${parentId}&sub=${sub.id}`}
+                        className={cn(
+                            "px-4 py-2 rounded-full text-[13px] font-bold transition-all whitespace-nowrap border shadow-sm",
+                            isActive ? ACTIVE_STYLE : INACTIVE_STYLE
+                        )}
+                    >
+                        {getCategoryName(sub)}
+                    </Link>
+                );
+            })}
         </div>
     );
 }

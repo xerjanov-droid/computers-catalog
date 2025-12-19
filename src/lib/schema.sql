@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS products (
   price NUMERIC(12,2) DEFAULT 0,
   currency VARCHAR(5) DEFAULT 'UZS',
   
-  status VARCHAR(30) DEFAULT 'in_stock',   -- in_stock / pre_order / showroom
+  status VARCHAR(30) DEFAULT 'in_stock',   -- in_stock / on_order / showroom
   delivery_days INT DEFAULT 1,
   views INT DEFAULT 0,
   

@@ -1,29 +1,34 @@
 "use client";
 
-import { CHARACTERISTICS_SCHEMA_MAP } from "@/config/characteristics";
+import { CHARACTERISTICS_SCHEMA_MAP, CharacteristicField } from "@/config/characteristics";
 import { Product } from "@/types";
 import { useTranslation } from "react-i18next";
 
 interface ProductCharacteristicsProps {
     product: Product;
+    fields?: CharacteristicField[];
 }
 
-export function ProductCharacteristics({ product }: ProductCharacteristicsProps) {
+export function ProductCharacteristics({ product, fields }: ProductCharacteristicsProps) {
     const { t } = useTranslation("common");
 
-    // Logic: 
-    // 1. Try "category_slug/subcategory_slug"
-    // 2. Try "category_slug"
-    // 3. Fallback empty
+    // Resolve schema if not provided
+    let schema: CharacteristicField[] = fields ?? [];
 
-    const schemaKey = product.subcategory_slug
-        ? `${product.category_slug}/${product.subcategory_slug}`
-        : product.category_slug;
+    if (!fields) {
+        // Logic: 
+        // 1. Try "category_slug/subcategory_slug"
+        // 2. Try "category_slug"
+        // 3. Fallback empty
+        const schemaKey = product.subcategory_slug
+            ? `${product.category_slug}/${product.subcategory_slug}`
+            : product.category_slug;
 
-    const schema =
-        CHARACTERISTICS_SCHEMA_MAP[schemaKey] ??
-        CHARACTERISTICS_SCHEMA_MAP[product.category_slug] ??
-        [];
+        schema =
+            CHARACTERISTICS_SCHEMA_MAP[schemaKey] ??
+            CHARACTERISTICS_SCHEMA_MAP[product.category_slug] ??
+            [];
+    }
 
     if (!schema || schema.length === 0) {
         return null;
@@ -34,7 +39,7 @@ export function ProductCharacteristics({ product }: ProductCharacteristicsProps)
         // Prioritize product.specs (JSONB)
         let val = product.specs?.[key];
 
-        if (val === undefined || val === null) return undefined;
+        if (val === undefined || val === null || val === "") return undefined;
 
         if (type === 'boolean') {
             return val ? t("yes") : t("no");

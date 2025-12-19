@@ -39,6 +39,10 @@ export default async function Home({
   // Parse technology and color as arrays
   const technology = parseArrayParam(resolvedParams.technology as string);
   const color = parseArrayParam(resolvedParams.color as string);
+  const availability = parseArrayParam(resolvedParams.availability as string);
+
+  const price_from = resolvedParams.price_from ? Number(resolvedParams.price_from) : undefined;
+  const price_to = resolvedParams.price_to ? Number(resolvedParams.price_to) : undefined;
 
   // Wifi is boolean-ish 'true'
   const wifi = resolvedParams.wifi === 'true';
@@ -54,6 +58,9 @@ export default async function Home({
     technology: technology,
     color: color,
     wifi: wifi ? true : undefined,
+    availability: availability,
+    price_from,
+    price_to,
   });
 
   // Hydration fix handled by wrapper now

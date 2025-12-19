@@ -3,6 +3,11 @@
     "all": "Barchasi",
     "price": "Narx",
     "in_stock": "Mavjud",
+    "availability": {
+        "in_stock": "Mavjud",
+        "on_order": "Buyurtma asosida",
+        "showroom": "Shourumda"
+    },
     "filters": {
         "title": "Filtrlar",
         "technology": "Texnologiya",
@@ -13,7 +18,27 @@
         "bw": "Oq-qora",
         "wifi": "Wi-Fi",
         "show_results": "Natijalarni ko‘rsatish",
-        "clear_filters": "Filtrlarni tozalash"
+        "clear_filters": "Filtrlarni tozalash",
+        "clear": "Tozalash",
+        "price_title": "Narx, baho, so‘m",
+        "from": "dan",
+        "to": "oldin"
+    },
+    "product": {
+        "price_with_vat": "Narx QQS bilan",
+        "article": "Artikul",
+        "key_specs": "Asosiy xarakteristikalar",
+        "all_specs": "Barcha xarakteristikalar",
+        "request_invoice": "Hisob so‘rash",
+        "ask_question": "Savol berish",
+        "documentation": "Hujjatlar",
+        "manual": "Foydalanuvchi qo‘llanmasi",
+        "datasheet": "Texnik tavsif"
+    },
+    "trust": {
+        "warranty": "Rasmiy kafolat",
+        "original": "Original mahsulot",
+        "delivery_free": "Toshkent bo‘yicha yetkazib berish — bepul"
     },
     "characteristics": {
         "cpu": "Protsessor",
