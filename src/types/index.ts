@@ -1,56 +1,86 @@
 export interface Category {
     id: number;
-    parent_id?: number | null;
-    slug?: string;
+    parent_id: number | null;
+    slug: string;
     name_ru: string;
     name_uz: string;
     name_en: string;
     icon?: string;
-    children?: Category[]; // For UI tree structure
+    order_index: number;
+    is_active: boolean;
+    children?: Category[];
 }
 
 export interface Product {
     id: number;
     category_id: number;
-    category_slug: string; // Calculated (Main Category)
-    subcategory_slug?: string; // Calculated (Sub Category)
     brand: string;
     model: string;
-    sku: string;
+    sku?: string;
     title_ru: string;
     title_uz?: string;
     title_en?: string;
     price: number;
     currency: string;
-    status: 'in_stock' | 'pre_order' | 'on_order' | 'showroom';
-    delivery_days?: number;
-    short_specs_ru?: string;
-    short_specs_uz?: string;
-    short_specs_en?: string;
+    // Status is now stricter, but still a string in DB/Join
+    status: 'in_stock' | 'on_order' | 'showroom' | 'out_of_stock';
+    image_url?: string;
     images?: string[];
+    // Dynamic specs
+    specs: Record<string, any>;
+    // Relations
+    category_name_ru?: string;
+    created_at?: Date;
+}
 
-    // Logic: JSONB specs matching Characteristics config
-    specs?: Record<string, string | number | boolean>;
+export interface Characteristic {
+    id: number;
+    key: string;
+    type: 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'range';
+    name_ru: string;
+    name_uz?: string;
+    name_en?: string;
+    options?: any[]; // JSON
+    is_filterable: boolean;
+}
 
-    files?: { id: number; file_type: string; file_url: string }[];
-    views?: number;
-    created_at: string;
-    updated_at?: string;
+export interface CategoryCharacteristic {
+    category_id: number;
+    characteristic_id: number;
+    order_index: number;
+    is_required: boolean;
+    show_in_key_specs: boolean;
+    // Joined data
+    characteristic?: Characteristic;
+}
 
-    // Legacy fields handling (optional):
-    technology?: string;
-    color_print?: boolean;
-    format?: string;
-    wifi?: boolean;
-    duplex?: boolean;
+export interface AuditLog {
+    id: number;
+    entity_type: string;
+    entity_id: number;
+    action: string;
+    before_data?: any;
+    after_data?: any;
+    admin_user_id?: number;
+    created_at: Date;
+}
+
+export interface AdminUser {
+    id: number;
+    username: string;
+    full_name?: string;
+    role_slug: string;
+    is_active: boolean;
 }
 
 export interface B2BRequest {
     id: number;
     telegram_id: number;
-    type: 'invoice' | 'consultation';
+    type: string;
     message?: string;
-    created_at: string;
+    status: 'new' | 'in_progress' | 'completed' | 'rejected';
+    items?: any[];
+    admin_comment?: string;
+    updated_by?: number;
+    created_at: Date;
 }
-
-export type Language = 'ru' | 'uz' | 'en';
