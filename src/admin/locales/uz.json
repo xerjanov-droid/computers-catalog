@@ -1,0 +1,68 @@
+{
+    "nav": {
+        "dashboard": "Boshqaruv paneli",
+        "products": "Mahsulotlar",
+        "categories": "Kategoriyalar",
+        "characteristics": "Xarakteristikalar",
+        "filters": "Filtrlar",
+        "requests": "B2B So‘rovlar",
+        "orders": "Buyurtmalar",
+        "users": "Foydalanuvchilar",
+        "roles": "Rollar",
+        "settings": "Sozlamalar",
+        "logs": "Loglar"
+    },
+    "dashboard": {
+        "title": "Boshqaruv paneli",
+        "subtitle": "Do‘kon samaradorligi ko‘rsatkichlari",
+        "stats": {
+            "total_products": "Jami mahsulotlar",
+            "in_stock": "Mavjud",
+            "new_today": "bugun qo‘shildi",
+            "ready_delivery": "Yetkazishga tayyor",
+            "b2b_requests": "B2B So‘rovlar",
+            "new_pending": "yangi kutilmoqda",
+            "active_deals": "Faol bitimlar",
+            "in_progress": "Jarayonda"
+        },
+        "recent_requests": "Oxirgi so‘rovlar",
+        "inventory_status": "Ombor holati",
+        "quick_actions": "Tezkor amallar",
+        "empty_requests": "So‘rovlar hozircha yo‘q"
+    },
+    "common": {
+        "add_new": "Qo‘shish",
+        "save": "Saqlash",
+        "cancel": "Bekor qilish",
+        "edit": "Tahrirlash",
+        "delete": "O‘chirish",
+        "actions": "Amallar",
+        "search": "Qidirish...",
+        "back": "Orqaga",
+        "status": "Holat",
+        "date": "Sana"
+    },
+    "characteristics": {
+        "title": "Xarakteristikalar lug‘ati",
+        "subtitle": "Mahsulot xususiyatlarini boshqarish",
+        "new_btn": "Yangi xarakteristika",
+        "edit_title": "Xarakteristikani tahrirlash",
+        "create_title": "Xarakteristika yaratish",
+        "table": {
+            "key": "Key (Slug)",
+            "name": "Nomi",
+            "type": "Turi",
+            "filterable": "Filtr"
+        },
+        "form": {
+            "name_ru": "Nomi (RU)",
+            "name_uz": "Nomi (UZ)",
+            "name_en": "Nomi (EN)",
+            "key": "Kalit (Slug)",
+            "type": "Ma'lumot turi",
+            "use_filter": "Filtrlarda ishlatish",
+            "options_label": "Ro‘yxat variantlari",
+            "add_option": "Qo‘shish"
+        }
+    }
+}

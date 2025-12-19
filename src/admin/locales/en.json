@@ -1,0 +1,68 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "categories": "Categories",
+        "characteristics": "Characteristics",
+        "filters": "Filters",
+        "requests": "B2B Requests",
+        "orders": "Orders",
+        "users": "Users",
+        "roles": "Roles",
+        "settings": "Settings",
+        "logs": "Logs"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Store performance overview",
+        "stats": {
+            "total_products": "Total Products",
+            "in_stock": "In Stock",
+            "new_today": "added today",
+            "ready_delivery": "Ready for delivery",
+            "b2b_requests": "B2B Requests",
+            "new_pending": "new pending",
+            "active_deals": "Active Deals",
+            "in_progress": "In progress"
+        },
+        "recent_requests": "Recent Requests",
+        "inventory_status": "Inventory Status",
+        "quick_actions": "Quick Actions",
+        "empty_requests": "No requests yet"
+    },
+    "common": {
+        "add_new": "Add New",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete",
+        "actions": "Actions",
+        "search": "Search...",
+        "back": "Back",
+        "status": "Status",
+        "date": "Date"
+    },
+    "characteristics": {
+        "title": "Characteristics Dictionary",
+        "subtitle": "Manage product specifications",
+        "new_btn": "New Characteristic",
+        "edit_title": "Edit Characteristic",
+        "create_title": "Create Characteristic",
+        "table": {
+            "key": "Key (Slug)",
+            "name": "Name",
+            "type": "Type",
+            "filterable": "Filterable"
+        },
+        "form": {
+            "name_ru": "Name (RU)",
+            "name_uz": "Name (UZ)",
+            "name_en": "Name (EN)",
+            "key": "Key (Slug)",
+            "type": "Data Type",
+            "use_filter": "Use in Filters",
+            "options_label": "Dropdown Options",
+            "add_option": "Add"
+        }
+    }
+}

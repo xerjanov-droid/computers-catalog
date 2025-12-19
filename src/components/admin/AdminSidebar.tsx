@@ -27,7 +27,7 @@ export function AdminSidebar() {
 
     const menuGroups = [
         {
-            title: 'Catalog',
+            title: t('nav.group_catalog'),
             items: [
                 { href: '/admin/products', icon: Package, label: t('nav.products') },
                 { href: '/admin/categories', icon: Folders, label: t('nav.categories') },
@@ -36,25 +36,25 @@ export function AdminSidebar() {
             ]
         },
         {
-            title: 'Sales',
+            title: t('nav.group_sales'),
             items: [
-                { href: '/admin/requests', icon: FileText, label: 'B2B Requests' },
+                { href: '/admin/requests', icon: FileText, label: t('nav.requests') },
                 { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
                 // { href: '/admin/delivery', icon: Truck, label: 'Delivery' },
             ]
         },
         {
-            title: 'Users',
+            title: t('nav.group_users'),
             items: [
-                { href: '/admin/users', icon: Users, label: 'Users' },
-                { href: '/admin/roles', icon: Shield, label: 'Roles' },
+                { href: '/admin/users', icon: Users, label: t('nav.users') },
+                { href: '/admin/roles', icon: Shield, label: t('nav.roles') },
             ]
         },
         {
-            title: 'System',
+            title: t('nav.group_system'),
             items: [
-                { href: '/admin/settings', icon: Settings, label: 'Settings' },
-                { href: '/admin/logs', icon: Activity, label: 'Logs' },
+                { href: '/admin/settings', icon: Settings, label: t('nav.settings') },
+                { href: '/admin/logs', icon: Activity, label: t('nav.logs') },
             ]
         }
     ];
@@ -72,8 +72,8 @@ export function AdminSidebar() {
                 <Link
                     href="/admin"
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${pathname === '/admin'
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-                            : 'text-gray-600 hover:bg-gray-50'
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                        : 'text-gray-600 hover:bg-gray-50'
                         }`}
                 >
                     <LayoutDashboard className="w-5 h-5" />
@@ -91,8 +91,8 @@ export function AdminSidebar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-colors ${isActive(item.href)
-                                            ? 'bg-blue-50 text-blue-700'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        ? 'bg-blue-50 text-blue-700'
+                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                 >
                                     <item.icon className={`w-5 h-5 ${isActive(item.href) ? 'text-blue-600' : 'text-gray-400'}`} />

@@ -1,22 +1,31 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import ruObj from '@/admin/locales/ru.json';
+import uzObj from '@/admin/locales/uz.json';
+import enObj from '@/admin/locales/en.json';
 
 type AdminLanguage = 'ru' | 'uz' | 'en';
 
 interface AdminLanguageContextType {
     language: AdminLanguage;
     setLanguage: (lang: AdminLanguage) => void;
-    t: (key: string) => string; // Simple translator placeholder or link to i18next
+    t: (key: string) => string;
 }
 
 const AdminLanguageContext = createContext<AdminLanguageContextType | undefined>(undefined);
+
+const dictionaries = {
+    ru: ruObj,
+    uz: uzObj,
+    en: enObj
+};
 
 export function AdminLanguageProvider({ children }: { children: React.ReactNode }) {
     const [language, setLanguage] = useState<AdminLanguage>('ru');
 
     useEffect(() => {
+        // Init from localStorage
         const stored = localStorage.getItem('admin_lang') as AdminLanguage;
         if (stored && ['ru', 'uz', 'en'].includes(stored)) {
             setLanguage(stored);
@@ -26,25 +35,21 @@ export function AdminLanguageProvider({ children }: { children: React.ReactNode 
     const handleSetLanguage = (lang: AdminLanguage) => {
         setLanguage(lang);
         localStorage.setItem('admin_lang', lang);
-        // Could also trigger a reload if needed, but Context Reactivity is better
     };
 
-    // Simple dictionary for Admin UI (can be expanded or replaced with i18next)
-    // For now, hardcoding based on TT:
-    const dictionary: Record<string, Record<AdminLanguage, string>> = {
-        'nav.dashboard': { ru: 'Дашборд', uz: 'Boshqaruv paneli', en: 'Dashboard' },
-        'nav.products': { ru: 'Продукты', uz: 'Mahsulotlar', en: 'Products' },
-        'nav.categories': { ru: 'Категории', uz: 'Kategoriyalar', en: 'Categories' },
-        'categories.title': { ru: 'Категории', uz: 'Kategoriyalar', en: 'Categories' },
-        'categories.name': { ru: 'Название', uz: 'Nomi', en: 'Name' },
-        'categories.slug': { ru: 'Slug', uz: 'Slug', en: 'Slug' },
-        'categories.active': { ru: 'Активен', uz: 'Faol', en: 'Active' },
-        'categories.actions': { ru: 'Действия', uz: 'Amallar', en: 'Actions' },
-        // Add more as needed
-    };
+    const t = (key: string): string => {
+        const keys = key.split('.');
+        let current: any = dictionaries[language];
 
-    const t = (key: string) => {
-        return dictionary[key]?.[language] || key;
+        for (const k of keys) {
+            if (current[k] === undefined) {
+                // Fallback to key itself if missing
+                return key;
+            }
+            current = current[k];
+        }
+
+        return typeof current === 'string' ? current : key;
     };
 
     return (

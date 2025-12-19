@@ -1,0 +1,68 @@
+{
+    "nav": {
+        "dashboard": "Дашборд",
+        "products": "Продукты",
+        "categories": "Категории",
+        "characteristics": "Характеристики",
+        "filters": "Фильтры",
+        "requests": "B2B Заявки",
+        "orders": "Заказы",
+        "users": "Пользователи",
+        "roles": "Роли",
+        "settings": "Настройки",
+        "logs": "Логи"
+    },
+    "dashboard": {
+        "title": "Дашборд",
+        "subtitle": "Обзор эффективности магазина",
+        "stats": {
+            "total_products": "Всего товаров",
+            "in_stock": "В наличии",
+            "new_today": "добавлено сегодня",
+            "ready_delivery": "Готовы к отгрузке",
+            "b2b_requests": "B2B Заявки",
+            "new_pending": "новых ожидают",
+            "active_deals": "Активные сделки",
+            "in_progress": "В процессе"
+        },
+        "recent_requests": "Недавние заявки",
+        "inventory_status": "Статус склада",
+        "quick_actions": "Быстрые действия",
+        "empty_requests": "Заявок пока нет"
+    },
+    "common": {
+        "add_new": "Добавить",
+        "save": "Сохранить",
+        "cancel": "Отмена",
+        "edit": "Изменить",
+        "delete": "Удалить",
+        "actions": "Действия",
+        "search": "Поиск...",
+        "back": "Назад",
+        "status": "Статус",
+        "date": "Дата"
+    },
+    "characteristics": {
+        "title": "Словарь характеристик",
+        "subtitle": "Управление спецификациями товаров",
+        "new_btn": "Новая характеристика",
+        "edit_title": "Редактирование характеристики",
+        "create_title": "Создание характеристики",
+        "table": {
+            "key": "Key (Slug)",
+            "name": "Название",
+            "type": "Тип",
+            "filterable": "Фильтр"
+        },
+        "form": {
+            "name_ru": "Название (RU)",
+            "name_uz": "Название (UZ)",
+            "name_en": "Название (EN)",
+            "key": "Ключ (Slug)",
+            "type": "Тип данных",
+            "use_filter": "Использовать в фильтрах",
+            "options_label": "Опции списка",
+            "add_option": "Добавить"
+        }
+    }
+}
