@@ -143,4 +143,54 @@ export class ProductService {
 
         return product;
     }
+    static async update(id: number, data: Partial<Product>): Promise<Product> {
+        const fields: string[] = [];
+        const values: any[] = [];
+        let idx = 1;
+
+        // ... generic update logic similar to characteristics ...
+        Object.entries(data).forEach(([key, value]) => {
+            if (key !== 'id' && value !== undefined) {
+                fields.push(`${key}=$${idx++}`);
+                values.push(value);
+            }
+        });
+        values.push(id);
+
+        const res = await query(`UPDATE products SET ${fields.join(', ')} WHERE id=$${idx} RETURNING *`, values);
+        return res.rows[0];
+    }
+
+    static async bulkUpdateStatus(ids: number[], status: string) {
+        if (ids.length === 0) return;
+        await query(`UPDATE products SET status = $1 WHERE id = ANY($2)`, [status, ids]);
+    }
+
+    static async bulkDelete(ids: number[]) {
+        if (ids.length === 0) return;
+        await query(`DELETE FROM products WHERE id = ANY($1)`, [ids]);
+    }
+
+    static async duplicate(id: number): Promise<Product> {
+        const original = await this.getById(id);
+        if (!original) throw new Error("Product not found");
+
+        const newName = `${original.name_ru} (Copy)`; // Simplified naming
+
+        const res = await query(`
+            INSERT INTO products (
+                category_id, brand_id, name_ru, name_uz, name_en, 
+                description_ru, description_uz, description_en, 
+                price, old_price, status, specs, key_features
+            )
+            SELECT 
+                category_id, brand_id, $1, name_uz, name_en, 
+                description_ru, description_uz, description_en, 
+                price, old_price, 'draft', specs, key_features
+            FROM products WHERE id = $2
+            RETURNING *
+        `, [newName, id]);
+
+        return res.rows[0];
+    }
 }
