@@ -9,6 +9,11 @@ export interface CharacteristicField {
 
 export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> = {
     /* 1. COMPUTERS (computers) */
+    'computers': [
+        { key: "cpu", labelKey: "characteristics.cpu", type: "string" },
+        { key: "ram", labelKey: "characteristics.ram", type: "string" },
+        { key: "storage", labelKey: "characteristics.storage", type: "string" },
+    ],
     'computers/office-pc': [
         { key: "cpu", labelKey: "characteristics.cpu", type: "string" },
         { key: "ram", labelKey: "characteristics.ram", type: "string" },
@@ -42,6 +47,12 @@ export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> =
     ],
 
     /* 2. LAPTOPS (laptops) */
+    'laptops': [
+        { key: "screen", labelKey: "characteristics.screen", type: "string" },
+        { key: "cpu", labelKey: "characteristics.cpu", type: "string" },
+        { key: "ram", labelKey: "characteristics.ram", type: "string" },
+        { key: "storage", labelKey: "characteristics.storage", type: "string" },
+    ],
     'laptops/office-laptops': [
         { key: "screen", labelKey: "characteristics.screen_size_res", type: "string" },
         { key: "cpu", labelKey: "characteristics.cpu", type: "string" },
@@ -81,6 +92,10 @@ export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> =
     ],
 
     /* 3. OFFICE EQUIPMENT (office-equipment) */
+    'office-equipment': [
+        { key: "technology", labelKey: "characteristics.technology", type: "string" },
+        { key: "format", labelKey: "characteristics.format", type: "string" },
+    ],
     'office-equipment/printers': [
         { key: "technology", labelKey: "characteristics.technology", type: "string" }, // Laser/Inkjet
         { key: "format", labelKey: "characteristics.format", type: "string" },
@@ -110,6 +125,11 @@ export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> =
     ],
 
     /* 4. MONITORS (monitors) */
+    'monitors': [
+        { key: "screen_size", labelKey: "characteristics.screen_size", type: "string" },
+        { key: "resolution", labelKey: "characteristics.resolution", type: "string" },
+        { key: "refresh_rate", labelKey: "characteristics.refresh_rate", type: "string" },
+    ],
     'monitors/office-monitors': [
         { key: "screen_size", labelKey: "characteristics.screen_size", type: "string" },
         { key: "resolution", labelKey: "characteristics.resolution", type: "string" },
@@ -202,38 +222,85 @@ export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> =
         { key: "sockets", labelKey: "characteristics.sockets", type: "string" },
     ],
 
-    /* NETWORKING EXTRA */
+    /* 7. NETWORKING (networking) */
+    'networking': [
+        { key: "speed", labelKey: "characteristics.speed", type: "string" },
+        { key: "ports", labelKey: "characteristics.ports_count", type: "string" },
+    ],
+    'networking/routers': [
+        { key: "wifi_std", labelKey: "characteristics.wifi_std", type: "string" },
+        { key: "speed", labelKey: "characteristics.speed", type: "string" },
+        { key: "frequency", labelKey: "characteristics.frequency_bands", type: "string" },
+        { key: "ports", labelKey: "characteristics.lan_ports", type: "string" },
+    ],
+    'networking/switches': [
+        { key: "ports", labelKey: "characteristics.ports_count", type: "string" },
+        { key: "speed", labelKey: "characteristics.speed", type: "string" },
+        { key: "type", labelKey: "characteristics.switch_type", type: "string" }, // Managed/Unmanaged
+    ],
     'networking/access-points': [
         { key: "wifi_std", labelKey: "characteristics.wifi_std", type: "string" },
         { key: "speed", labelKey: "characteristics.speed", type: "string" },
         { key: "poe", labelKey: "characteristics.poe", type: "boolean" },
     ],
-    // Modems, Adapters share similar schema or generic
+    'networking/modems': [
+        { key: "type", labelKey: "characteristics.type", type: "string" },
+        { key: "speed", labelKey: "characteristics.speed", type: "string" },
+    ],
+    'networking/wifi-adapters': [
+        { key: "interface", labelKey: "characteristics.interface", type: "string" },
+        { key: "wifi_std", labelKey: "characteristics.wifi_std", type: "string" },
+    ],
+
+    /* 8. SOFTWARE (software) */
+    'software': [
+        { key: "product_type", labelKey: "characteristics.product_type", type: "string" },
+        { key: "version", labelKey: "characteristics.version", type: "string" },
+    ],
+    // ... existing software items
 
     /* STORAGE DEVICES */
-    'storage-devices/external-hdd': [
+    'storage-devices': [
         { key: "capacity", labelKey: "characteristics.capacity", type: "string" },
-        { key: "form_factor", labelKey: "characteristics.form_factor", type: "string" }, // 2.5/3.5
         { key: "interface", labelKey: "characteristics.interface", type: "string" },
     ],
-    'storage-devices/external-ssd': [
-        { key: "capacity", labelKey: "characteristics.capacity", type: "string" },
-        { key: "speed", labelKey: "characteristics.read_write_speed", type: "string" },
+    // ... existing storage items
+    'storage-devices/card-readers': [
+        { key: "type", labelKey: "characteristics.type", type: "string" },
         { key: "interface", labelKey: "characteristics.interface", type: "string" },
-    ],
-    'storage-devices/usb-flash': [
-        { key: "capacity", labelKey: "characteristics.capacity", type: "string" },
-        { key: "interface", labelKey: "characteristics.interface", type: "string" },
-        { key: "material", labelKey: "characteristics.material", type: "string" },
+        { key: "slots", labelKey: "characteristics.slots", type: "string" },
     ],
 
     /* ACCESSORIES */
+    'accessories': [
+        { key: "type", labelKey: "characteristics.type", type: "string" },
+        { key: "material", labelKey: "characteristics.material", type: "string" },
+    ],
     'accessories/bags': [
         { key: "type", labelKey: "characteristics.bag_type", type: "string" },
         { key: "material", labelKey: "characteristics.material", type: "string" },
         { key: "max_laptop_size", labelKey: "characteristics.max_laptop_size", type: "string" },
     ],
-    // ... others generic
+    'accessories/cooling-pads': [
+        { key: "max_laptop_size", labelKey: "characteristics.max_laptop_size", type: "string" },
+        { key: "fans", labelKey: "characteristics.fans_count", type: "string" },
+        { key: "material", labelKey: "characteristics.material", type: "string" },
+    ],
+    'accessories/cables': [
+        { key: "type", labelKey: "characteristics.cable_type", type: "string" },
+        { key: "length", labelKey: "characteristics.length", type: "string" },
+        { key: "connectors", labelKey: "characteristics.connectors", type: "string" },
+    ],
+    'accessories/chargers': [
+        { key: "power", labelKey: "characteristics.power", type: "string" },
+        { key: "connector", labelKey: "characteristics.connector_type", type: "string" }, // Type-C check
+        { key: "compatibility", labelKey: "characteristics.compatibility", type: "string" },
+    ],
+    'accessories/ups-batteries': [
+        { key: "voltage", labelKey: "characteristics.voltage", type: "string" },
+        { key: "capacity", labelKey: "characteristics.capacity_ah", type: "string" },
+        { key: "dimensions", labelKey: "characteristics.dimensions", type: "string" },
+    ],
     'software/accounting': [
         { key: "product_type", labelKey: "characteristics.product_type", type: "string" },
         { key: "version", labelKey: "characteristics.version", type: "string" },

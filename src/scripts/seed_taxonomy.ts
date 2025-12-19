@@ -340,10 +340,25 @@ async function seed() {
                 case 'nas':
                     specs1 = { bays: '2-Bay', cpu: 'Realtek', ram: '2GB' };
                     break;
+                case 'card-readers':
+                    specs1 = { type: 'Multi-Card', interface: 'USB 3.0', slots: 'SD/MicroSD' };
+                    break;
 
                 // ACCESSORIES
                 case 'bags':
                     specs1 = { type: 'Backpack', max_laptop_size: '15.6"', material: 'Polyester' };
+                    break;
+                case 'cooling-pads':
+                    specs1 = { max_laptop_size: '17"', fans: '2x 140mm', material: 'Plastic/Mesh' };
+                    break;
+                case 'cables':
+                    specs1 = { type: 'HDMI', length: '1.8m', connectors: 'Male-Male' };
+                    break;
+                case 'chargers':
+                    specs1 = { power: '65W', connector: 'USB-C', compatibility: 'Universal' };
+                    break;
+                case 'ups-batteries':
+                    specs1 = { voltage: '12V', capacity: '7Ah', dimensions: '151x65x94mm' };
                     break;
 
                 // SOFTWARE
