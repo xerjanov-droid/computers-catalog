@@ -356,6 +356,12 @@ async function seed() {
                 case 'office-software':
                     specs1 = { product_type: 'Office Suite', version: '2021', license_type: 'Perpetual' };
                     break;
+                case 'accounting':
+                    specs1 = { product_type: 'Accounting', version: 'Pro 2024', license_type: 'Subscription', users: '1 User' };
+                    break;
+                case 'licenses':
+                    specs1 = { product_type: 'License Key', version: 'Any', license_type: 'Digital', activation: 'Online', duration: 'Lifetime' };
+                    break;
 
                 default:
                     // Generic fallback for others

@@ -234,4 +234,17 @@ export const CHARACTERISTICS_SCHEMA_MAP: Record<string, CharacteristicField[]> =
         { key: "max_laptop_size", labelKey: "characteristics.max_laptop_size", type: "string" },
     ],
     // ... others generic
+    'software/accounting': [
+        { key: "product_type", labelKey: "characteristics.product_type", type: "string" },
+        { key: "version", labelKey: "characteristics.version", type: "string" },
+        { key: "license_type", labelKey: "characteristics.license_type", type: "string" },
+        { key: "users", labelKey: "characteristics.users_count", type: "string" },
+    ],
+    'software/licenses': [
+        { key: "product_type", labelKey: "characteristics.product_type", type: "string" },
+        { key: "version", labelKey: "characteristics.version", type: "string" },
+        { key: "license_type", labelKey: "characteristics.license_type", type: "string" },
+        { key: "activation", labelKey: "characteristics.activation", type: "string" },
+        { key: "duration", labelKey: "characteristics.duration", type: "string" },
+    ],
 };

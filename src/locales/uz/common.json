@@ -115,6 +115,7 @@
         "license_type": "Litsenziya turi",
         "activation": "Aktivlashtirish",
         "devices_count": "Qurilmalar",
+        "users_count": "Foydalanuvchilar soni",
         "duration": "Muddat"
     },
     "yes": "Bor",

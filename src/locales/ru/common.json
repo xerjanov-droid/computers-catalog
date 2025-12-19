@@ -115,6 +115,7 @@
         "license_type": "Тип лицензии",
         "activation": "Активация",
         "devices_count": "Устройства",
+        "users_count": "Кол-во пользователей",
         "duration": "Срок действия"
     },
     "yes": "Да",

@@ -115,6 +115,7 @@
     "license_type": "License Type",
     "activation": "Activation",
     "devices_count": "Devices",
+    "users_count": "Users Count",
     "duration": "Duration"
   },
   "yes": "Yes",
