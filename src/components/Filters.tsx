@@ -1,7 +1,6 @@
-'use client';
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
@@ -28,7 +27,7 @@ export default function Filters({ category, onClose }: FiltersProps) {
     const searchParams = useSearchParams();
     const { t } = useTranslation("common");
 
-    const availableFilters = CATEGORY_FILTERS_MAP[category] || [];
+    const availableFilters = useMemo(() => CATEGORY_FILTERS_MAP[category] || [], [category]);
 
     const [filters, setFilters] = useState<FiltersState>({});
 
@@ -44,7 +43,7 @@ export default function Filters({ category, onClose }: FiltersProps) {
         });
 
         setFilters(initial);
-    }, [category, availableFilters, searchParams]);
+    }, [availableFilters, searchParams]);
 
     function toggleFilter(key: FilterKey, value: string) {
         setFilters((prev) => {
