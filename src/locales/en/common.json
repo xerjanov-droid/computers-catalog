@@ -1,0 +1,18 @@
+{
+  "search_placeholder": "Search by name or SKU...",
+  "all": "All",
+  "price": "Price",
+  "in_stock": "In stock",
+  "filters": "Filters",
+  "contact_manager": "Contact manager",
+  "popular": "Popular",
+  "nothing_found": "Nothing found 😔",
+  "brand": "Brand",
+  "model": "Model",
+  "sku": "SKU",
+  "main_category": "Main Category",
+  "sub_category": "Sub Category",
+  "status": "Status",
+  "save": "Save",
+  "saving": "Saving..."
+}

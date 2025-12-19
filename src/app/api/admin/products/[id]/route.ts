@@ -13,11 +13,13 @@ export async function PUT(
         // Simple Update
         await query(
             `UPDATE products SET 
-       brand=$1, model=$2, sku=$3, title_ru=$4, price=$5, status=$6,
-       technology=$7, wifi=$8, duplex=$9, color_print=$10
-       WHERE id = $11`,
+       category_id=$1, brand=$2, model=$3, sku=$4, title_ru=$5, title_uz=$6, title_en=$7, price=$8, status=$9,
+       technology=$10, wifi=$11, duplex=$12, color_print=$13
+       WHERE id = $14`,
             [
-                body.brand, body.model, body.sku, body.title_ru, body.price, body.status,
+                body.category_id, body.brand, body.model, body.sku,
+                body.title_ru, body.title_uz, body.title_en,
+                body.price, body.status,
                 body.technology, body.wifi, body.duplex, body.color_print,
                 id
             ]

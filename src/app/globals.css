@@ -13,6 +13,10 @@
 
   --background: var(--tg-theme-bg-color);
   --foreground: var(--tg-theme-text-color);
+
+  /* Telegram WebApp Viewport Stability */
+  --tg-viewport-height: 100vh;
+  --tg-viewport-stable-height: 100vh;
 }
 
 @theme inline {

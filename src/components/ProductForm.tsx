@@ -1,7 +1,7 @@
 'use client';
 
 import { Product } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface ProductFormProps {
@@ -11,6 +11,24 @@ interface ProductFormProps {
 export function ProductForm({ initialData }: ProductFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+
+    // Category state
+    const [categories, setCategories] = useState<any[]>([]);
+    const [selectedMain, setSelectedMain] = useState<number | undefined>(undefined);
+
+    // Initial load
+    useEffect(() => {
+        fetch('/api/categories').then(res => res.json()).then(data => {
+            setCategories(data);
+            // Verify if initialData has a category
+            if (initialData?.category_id) {
+                const sub = data.find((c: any) => c.id === initialData.category_id);
+                if (sub && sub.parent_id) {
+                    setSelectedMain(sub.parent_id);
+                }
+            }
+        });
+    }, [initialData]);
 
     // Minimal state for demo. Real app needs form library (react-hook-form) + zod
     const [formData, setFormData] = useState<Partial<Product>>(initialData || {
@@ -78,9 +96,19 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 <input name="sku" required className="w-full border p-2 rounded" value={formData.sku || ''} onChange={handleChange} />
             </div>
 
-            <div>
-                <label className="block text-sm font-medium mb-1">Title (RU)</label>
-                <input name="title_ru" required className="w-full border p-2 rounded" value={formData.title_ru || ''} onChange={handleChange} />
+            <div className="grid grid-cols-1 gap-4">
+                <div>
+                    <label className="block text-sm font-medium mb-1">Title (RU)</label>
+                    <input name="title_ru" required className="w-full border p-2 rounded" value={formData.title_ru || ''} onChange={handleChange} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Title (UZ)</label>
+                    <input name="title_uz" required className="w-full border p-2 rounded" value={formData.title_uz || ''} onChange={handleChange} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Title (EN)</label>
+                    <input name="title_en" required className="w-full border p-2 rounded" value={formData.title_en || ''} onChange={handleChange} />
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -110,6 +138,42 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     <input name="color_print" type="checkbox" checked={formData.color_print} onChange={handleChange} />
                     <span>Color Print</span>
                 </label>
+            </div>
+
+            {/* Category Selection */}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium mb-1">Main Category</label>
+                    <select
+                        className="w-full border p-2 rounded"
+                        value={selectedMain}
+                        onChange={(e) => {
+                            setSelectedMain(Number(e.target.value));
+                            setFormData(prev => ({ ...prev, category_id: undefined })); // Reset sub
+                        }}
+                    >
+                        <option value="">Select Main...</option>
+                        {categories.filter(c => !c.parent_id).map(c => (
+                            <option key={c.id} value={c.id}>{c.name_ru}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Sub Category</label>
+                    <select
+                        name="category_id"
+                        required
+                        className="w-full border p-2 rounded"
+                        value={formData.category_id || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, category_id: Number(e.target.value) }))}
+                        disabled={!selectedMain}
+                    >
+                        <option value="">Select Sub...</option>
+                        {categories.filter(c => c.parent_id === selectedMain).map(c => (
+                            <option key={c.id} value={c.id}>{c.name_ru}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             <div>

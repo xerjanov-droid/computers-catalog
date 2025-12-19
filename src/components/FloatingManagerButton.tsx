@@ -1,26 +1,13 @@
 'use client';
 
 import { MessageCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 const MANAGER_USERNAME = 'office_manager';
 
-declare global {
-    interface Window {
-        Telegram?: {
-            WebApp: any;
-        }
-    }
-}
+// Types are now in src/types/telegram.d.ts
 
 export function FloatingManagerButton() {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        // Show after some scroll or immediately? TOR says just "Bottom right"
-        setIsVisible(true);
-    }, []);
-
+    // Show immediately as per requirement
     const handleClick = () => {
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             window.Telegram.WebApp.openTelegramLink(`https://t.me/${MANAGER_USERNAME}`);
@@ -28,8 +15,6 @@ export function FloatingManagerButton() {
             window.open(`https://t.me/${MANAGER_USERNAME}`, '_blank');
         }
     };
-
-    if (!isVisible) return null;
 
     return (
         <button

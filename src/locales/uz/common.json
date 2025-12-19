@@ -1,0 +1,18 @@
+{
+    "search_placeholder": "Nom yoki artikul bo‘yicha qidirish...",
+    "all": "Barchasi",
+    "price": "Narx",
+    "in_stock": "Mavjud",
+    "filters": "Filtrlar",
+    "contact_manager": "Menejer bilan bog‘lanish",
+    "popular": "Ommabop",
+    "nothing_found": "Hech narsa topilmadi 😔",
+    "brand": "Brend",
+    "model": "Model",
+    "sku": "Artikul",
+    "main_category": "Asosiy kategoriya",
+    "sub_category": "Ost-kategoriya",
+    "status": "Holat",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda..."
+}

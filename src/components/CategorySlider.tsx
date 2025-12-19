@@ -4,6 +4,7 @@ import { Category } from '@/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 interface CategorySliderProps {
     categories: Category[];
@@ -12,6 +13,7 @@ interface CategorySliderProps {
 export function CategorySlider({ categories }: CategorySliderProps) {
     const searchParams = useSearchParams();
     const activeId = searchParams.get('category');
+    const { t } = useTranslation();
 
     return (
         <div className="w-full overflow-x-auto pb-4 pt-2 no-scrollbar">
@@ -34,7 +36,7 @@ export function CategorySlider({ categories }: CategorySliderProps) {
                     <span className={cn(
                         "text-[11px] font-bold whitespace-nowrap leading-none pb-1",
                         !activeId ? "text-[var(--tg-theme-text-color)]" : "text-[var(--tg-theme-hint-color)]"
-                    )}>All</span>
+                    )}>{t('all')}</span>
                 </Link>
 
                 {categories.map((cat) => (
@@ -48,7 +50,7 @@ export function CategorySlider({ categories }: CategorySliderProps) {
                                 : "opacity-70 grayscale-[0.5]"
                         )}
                     >
-                        {/* Placeholder for Icon - using Emoji or first letter for now */}
+                        {/* Placeholder for Icon */}
                         <div className={cn(
                             "w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm",
                             activeId === String(cat.id) ? "bg-[var(--tg-theme-secondary-bg-color)]" : "bg-white"

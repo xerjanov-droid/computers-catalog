@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { CategoryService } from '@/services/category.service';
 import { ProductService } from '@/services/product.service';
 import { SearchBar } from '@/components/SearchBar';
@@ -6,6 +5,8 @@ import { CategorySlider } from '@/components/CategorySlider';
 import { ProductCard } from '@/components/ProductCard';
 import { FloatingManagerButton } from '@/components/FloatingManagerButton';
 import { Filters } from '@/components/Filters';
+import { TranslatedText } from '@/components/TranslatedText';
+import { ClientOnly } from '@/components/ClientOnly';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,43 +41,47 @@ export default async function Home({
     technology: technology,
   });
 
+  // Hydration fix handled by wrapper now
+
   return (
-    <main className="min-h-screen bg-[var(--tg-theme-secondary-bg-color)]">
-      <SearchBar />
+    <ClientOnly>
+      <main className="min-h-screen bg-[var(--tg-theme-secondary-bg-color)]">
+        <SearchBar />
 
-      <div className="space-y-2 pb-20">
-        <section>
-          {/* Main Categories */}
-          <CategorySlider categories={categoryTree} />
+        <div className="space-y-2 pb-20">
+          <section>
+            {/* Main Categories */}
+            <CategorySlider categories={categoryTree} />
 
-          {/* Sub Categories (if Main selected) */}
-          {categoryId && (
-            <SubCategoryList subCategories={subCategories} parentId={categoryId} />
-          )}
-        </section>
+            {/* Sub Categories (if Main selected) */}
+            {categoryId && (
+              <SubCategoryList subCategories={subCategories} parentId={categoryId} />
+            )}
+          </section>
 
-        <section className="px-5 flex justify-between items-center pt-2">
-          <h2 className="text-xl font-extrabold text-[#111827]">
-            {subId
-              ? subCategories.find(s => s.id === subId)?.name_ru
-              : (activeRoot ? activeRoot.name_ru : 'Популярное')}
-          </h2>
-          <Filters />
-        </section>
+          <section className="px-5 flex justify-between items-center pt-2">
+            <h2 className="text-xl font-extrabold text-[#111827]">
+              {subId
+                ? subCategories.find(s => s.id === subId)?.name_ru
+                : (activeRoot ? activeRoot.name_ru : <TranslatedText i18nKey="popular" />)}
+            </h2>
+            <Filters />
+          </section>
 
-        <section className="px-4 grid grid-cols-2 gap-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-          {products.length === 0 && (
-            <div className="col-span-2 text-center py-10 text-[var(--tg-theme-hint-color)]">
-              Ничего не найдено 😔
-            </div>
-          )}
-        </section>
-      </div>
+          <section className="px-4 grid grid-cols-2 gap-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {products.length === 0 && (
+              <div className="col-span-2 text-center py-10 text-[var(--tg-theme-hint-color)]">
+                <TranslatedText i18nKey="nothing_found" />
+              </div>
+            )}
+          </section>
+        </div>
 
-      <FloatingManagerButton />
-    </main>
+        <FloatingManagerButton />
+      </main>
+    </ClientOnly>
   );
 }

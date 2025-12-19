@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Heart, FileText, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FloatingManagerButton } from '@/components/FloatingManagerButton'; // Reuse or specific logic
+import { ProductHeader } from '@/components/ProductHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,15 +22,7 @@ export default async function ProductPage({
     return (
         <main className="min-h-screen bg-[var(--tg-theme-bg-color)] pb-24">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-[var(--tg-theme-bg-color)]/80 backdrop-blur-md p-4 flex justify-between items-center">
-                <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-[var(--tg-theme-secondary-bg-color)]">
-                    <ChevronLeft className="w-6 h-6 text-[var(--tg-theme-text-color)]" />
-                </Link>
-                <span className="font-semibold truncate max-w-[200px]">{product.brand} {product.model}</span>
-                <button className="p-2 -mr-2 rounded-full hover:bg-[var(--tg-theme-secondary-bg-color)]">
-                    <Heart className="w-6 h-6 text-[var(--tg-theme-hint-color)]" />
-                </button>
-            </div>
+            <ProductHeader title={product.title_ru} brand={product.brand} model={product.model} />
 
             {/* Gallery */}
             <div className="w-full aspect-square bg-white flex overflow-x-auto snap-x snap-mandatory no-scrollbar">

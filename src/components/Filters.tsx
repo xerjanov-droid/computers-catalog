@@ -4,8 +4,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export function Filters() {
+    const { t } = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +34,7 @@ export function Filters() {
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-[var(--tg-theme-hint-color)]/30 shadow-sm rounded-xl text-sm font-bold active:scale-95 transition-transform"
             >
                 <Filter className="w-4 h-4 text-[var(--tg-theme-button-color)]" />
-                Фильтры
+                {t('filters')}
             </button>
 
             {/* Modal / Sheet */}
@@ -40,7 +42,7 @@ export function Filters() {
                 <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
                     <div className="bg-[var(--tg-theme-bg-color)] w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl animate-slide-up">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold">Фильтры</h3>
+                            <h3 className="text-lg font-bold">{t('filters')}</h3>
                             <button onClick={() => setIsOpen(false)}><X className="w-6 h-6" /></button>
                         </div>
 
@@ -65,8 +67,6 @@ export function Filters() {
                                     ))}
                                 </div>
                             </div>
-
-                            {/* Add more filters here... */}
 
                             <button
                                 onClick={() => setIsOpen(false)}

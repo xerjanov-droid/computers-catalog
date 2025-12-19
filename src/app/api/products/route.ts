@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         const format = searchParams.get('format') || undefined;
         const wifi = searchParams.has('wifi') ? searchParams.get('wifi') === 'true' : undefined;
         const color_print = searchParams.has('color') ? searchParams.get('color') === 'true' : undefined;
-        const sort = searchParams.get('sort') as any;
+        const sort = searchParams.get('sort') as "price_asc" | "price_desc" | "popular" | "stock" | undefined;
 
         const products = await ProductService.getAll({
             category,

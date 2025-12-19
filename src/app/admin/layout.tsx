@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Package, Users, Settings, LogOut } from 'lucide-react';
+import { Package, Users, LogOut, LayoutDashboard } from 'lucide-react';
 import './../globals.css'; // Ensure globals are applied if not inherited from root (it is)
 
 export default async function AdminLayout({
@@ -10,8 +10,9 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await getSession();
-
-    // Double check session in layout (server component)
+    if (!session) {
+        redirect('/api/auth/login');
+    }
     // If middleware missed it or for deeper security
     // Need to handle /admin/login route which also uses this layout? 
     // Usually login has its own layout or we check path. 

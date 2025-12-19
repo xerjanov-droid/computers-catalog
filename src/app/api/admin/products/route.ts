@@ -10,11 +10,12 @@ export async function POST(request: NextRequest) {
         // Simple Insert
         const res = await query(
             `INSERT INTO products 
-       (brand, model, sku, title_ru, price, currency, status, technology, wifi, duplex, color_print)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       (category_id, brand, model, sku, title_ru, title_uz, title_en, price, currency, status, technology, wifi, duplex, color_print)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        RETURNING id`,
             [
-                body.brand, body.model, body.sku, body.title_ru,
+                body.category_id, body.brand, body.model, body.sku,
+                body.title_ru, body.title_uz, body.title_en,
                 body.price, body.currency, body.status,
                 body.technology, body.wifi, body.duplex, body.color_print
             ]

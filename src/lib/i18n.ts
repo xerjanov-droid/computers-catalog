@@ -1,36 +1,30 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-// In a real app, import these from JSON files
-const resources = {
-    en: {
-        translation: {
-            "welcome": "Welcome",
-            "search_placeholder": "Search products...",
-        }
-    },
-    ru: {
-        translation: {
-            "welcome": "Добро пожаловать",
-            "search_placeholder": "Поиск товаров...",
-        }
-    },
-    uz: {
-        translation: {
-            "welcome": "Xush kelibsiz",
-            "search_placeholder": "Mahsulotlarni qidirish...",
-        }
-    }
-};
+import commonEn from '../locales/en/common.json';
+import commonRu from '../locales/ru/common.json';
+import commonUz from '../locales/uz/common.json';
 
 i18n
+    .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        resources,
-        lng: "ru", // default language
-        fallbackLng: "ru",
+        resources: {
+            en: { common: commonEn },
+            ru: { common: commonRu },
+            uz: { common: commonUz },
+        },
+        fallbackLng: "uz",
+        supportedLngs: ["uz", "ru", "en"],
+        ns: ["common"],
+        defaultNS: "common",
         interpolation: {
-            escapeValue: false
+            escapeValue: false,
+        },
+        detection: {
+            order: ['telegram', 'localStorage', 'navigator'],
+            caches: ['localStorage'],
         }
     });
 
