@@ -1,26 +1,39 @@
-import { CategoryForm } from '@/components/CategoryForm';
-import { CategoryService } from '@/services/category.service';
+
 import { notFound } from 'next/navigation';
+import { CategoryService } from '@/services/category.service';
+import { CharacteristicService } from '@/services/characteristic.service';
+import { CategoryForm } from '@/components/admin/categories/form/CategoryForm';
 
-export const dynamic = 'force-dynamic';
-
-export default async function EditCategoryPage({
-    params,
-}: {
-    params: Promise<{ id: string }>
-}) {
-    const { id } = await params;
-    const categories = await CategoryService.getAll();
-    const category = categories.find((c: any) => c.id === Number(id));
-
-    if (!category) {
-        notFound();
+interface Props {
+    params: {
+        id: string;
     }
+}
+
+export default async function EditCategoryPage({ params }: Props) {
+    const id = parseInt(params.id);
+    if (isNaN(id)) notFound();
+
+    // Fetch Data
+    const category = await CategoryService.getById(id);
+    if (!category) notFound();
+
+    const [allCategories, allCharacteristics, linkedCharacteristics] = await Promise.all([
+        CategoryService.getAll(),
+        CharacteristicService.getAll(),
+        CategoryService.getCategoryCharacteristics(id)
+    ]);
+
+    // Parent candidates should exclude self and children to avoid cycles
+    // For simplicity, we just filter out self for now. A robust solution would filter subtree.
+    const parents = allCategories.filter(c => c.id !== id);
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Edit Category</h1>
-            <CategoryForm initialData={category} categories={categories} />
-        </div>
+        <CategoryForm
+            category={category}
+            parents={parents}
+            allCharacteristics={allCharacteristics}
+            linkedCharacteristics={linkedCharacteristics}
+        />
     );
 }

@@ -21,7 +21,7 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
 
     // Filter Logic
     const filteredProducts = products.filter(p => {
-        const matchesSearch = p.name_ru.toLowerCase().includes(filters.search.toLowerCase());
+        const matchesSearch = p.title_ru.toLowerCase().includes(filters.search.toLowerCase());
         const matchesCategory = filters.category ? p.category_id === parseInt(filters.category) : true;
         const matchesStatus = filters.status ? p.status === filters.status : true;
         return matchesSearch && matchesCategory && matchesStatus;
@@ -159,7 +159,7 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
                                             {/* Img placeholder */}
                                         </div>
                                         <div>
-                                            <div className="font-medium text-gray-900">{product.name_ru}</div>
+                                            <div className="font-medium text-gray-900">{product.title_ru}</div>
                                             <div className="text-xs text-gray-500">SKU: {product.id}</div>
                                         </div>
                                     </div>

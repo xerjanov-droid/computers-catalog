@@ -8,7 +8,7 @@ export default async function AdminDashboard() {
         products: { total: 0, in_stock: 0, new_today: 0 },
         requests: { total: 0, new: 0, active: 0, closed: 0 },
         users: 0,
-        recent: []
+        recent: [] as any[]
     };
 
     try {
@@ -20,7 +20,18 @@ export default async function AdminDashboard() {
             FROM products
         `);
 
-        // Handle B2B Requests if table has status column (migrated)
+        if (pRes.rows[0]) {
+            stats.products = {
+                total: parseInt(pRes.rows[0].total) || 0,
+                in_stock: parseInt(pRes.rows[0].in_stock) || 0,
+                new_today: parseInt(pRes.rows[0].new_today) || 0
+            };
+        }
+    } catch (e) {
+        console.error("Dashboard Stats Error (Products):", e);
+    }
+
+    try {
         const rRes = await query(`
             SELECT 
                 COUNT(*) as total,
@@ -30,8 +41,15 @@ export default async function AdminDashboard() {
             FROM b2b_requests
         `);
 
-        // Use safe selection for recent requests
-        // Check if table exists to avoid crash if migration failed
+        if (rRes.rows[0]) {
+            stats.requests = {
+                total: parseInt(rRes.rows[0].total) || 0,
+                new: parseInt(rRes.rows[0].new_req) || 0,
+                active: parseInt(rRes.rows[0].active) || 0,
+                closed: parseInt(rRes.rows[0].closed) || 0
+            };
+        }
+
         const recentRes = await query(`
             SELECT id, type, created_at, status, 
                    (details->>'total_amount')::numeric as total_amount,
@@ -39,24 +57,10 @@ export default async function AdminDashboard() {
             FROM b2b_requests 
             ORDER BY created_at DESC LIMIT 5
         `);
+        stats.recent = recentRes.rows;
 
-        stats = {
-            products: {
-                total: parseInt(pRes.rows[0].total) || 0,
-                in_stock: parseInt(pRes.rows[0].in_stock) || 0,
-                new_today: parseInt(pRes.rows[0].new_today) || 0
-            },
-            requests: {
-                total: parseInt(rRes.rows[0].total) || 0,
-                new: parseInt(rRes.rows[0].new_req) || 0,
-                active: parseInt(rRes.rows[0].active) || 0,
-                closed: parseInt(rRes.rows[0].closed) || 0
-            },
-            users: 0,
-            recent: recentRes.rows
-        };
     } catch (e) {
-        console.error("Dashboard Stats Error (DB might be migrating):", e);
+        console.error("Dashboard Stats Error (Requests):", e);
     }
 
     return <DashboardClient stats={stats} />;

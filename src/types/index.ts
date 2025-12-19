@@ -9,6 +9,7 @@ export interface Category {
     order_index: number;
     is_active: boolean;
     children?: Category[];
+    product_count?: number; // Aggregated count (direct + children)
 }
 
 export interface Product {
