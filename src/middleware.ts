@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-    const path = request.nextUrl.pathname;
+export function middleware(req: NextRequest) {
+    const { pathname } = req.nextUrl;
 
-    if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
-        if (path === '/admin/login') {
-            return NextResponse.next();
-        }
+    // 1. Login sahifani butunlay o‘tkazib yuboramiz
+    if (pathname === "/admin/login") {
+        return NextResponse.next();
+    }
 
-        const token = request.cookies.get('admin_token')?.value;
+    // 2. Faqat qolgan admin sahifalar himoyalanadi
+    if (pathname.startsWith("/admin")) {
+        const token = req.cookies.get("admin_token")?.value;
 
         if (!token) {
-            // If API, return 401
-            if (path.startsWith('/api')) {
-                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-            }
-            return NextResponse.redirect(new URL('/admin/login', request.url));
+            const url = req.nextUrl.clone();
+            url.pathname = "/admin/login";
+            return NextResponse.redirect(url);
         }
     }
 

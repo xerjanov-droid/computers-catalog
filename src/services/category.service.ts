@@ -11,6 +11,14 @@ export class CategoryService {
         return res.rows;
     }
 
+    static async getAllAdmin(): Promise<Category[]> {
+        const res = await query(
+            `SELECT * FROM categories 
+       ORDER BY order_index ASC`
+        );
+        return res.rows;
+    }
+
     static async getTree(): Promise<Category[]> {
         const all = await this.getAll();
         const roots = all.filter(c => !c.parent_id);
