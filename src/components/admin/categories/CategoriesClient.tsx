@@ -98,8 +98,14 @@ export function CategoriesClient({ initialCategories }: Props) {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[500px]">
                 <div className="p-4 border-b bg-gray-50 flex text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     <div className="flex-1 pl-12">{t('nav.categories')}</div>
-                    <div className="w-32 text-center">{t('common.status')}</div>
-                    <div className="w-16 text-right pr-4">{t('common.actions')}</div>
+                    <div className="w-24 text-center">{t('common.status')}</div>
+                    {/* Action Columns Headers */}
+                    <div className="flex items-center gap-2 pr-4 text-center">
+                        <div className="w-8" title="Edit"><Edit className="w-3.5 h-3.5 mx-auto text-gray-400" /></div>
+                        <div className="w-8" title="Add Sub"><FolderPlus className="w-3.5 h-3.5 mx-auto text-gray-400" /></div>
+                        <div className="w-8" title="Attributes"><Layers className="w-3.5 h-3.5 mx-auto text-gray-400" /></div>
+                        <div className="w-8" title="Archive"><Archive className="w-3.5 h-3.5 mx-auto text-gray-400" /></div>
+                    </div>
                 </div>
 
                 <div className="divide-y divide-gray-100">
@@ -125,13 +131,20 @@ export function CategoriesClient({ initialCategories }: Props) {
 function TreeNode({ node, level, expanded, onToggle }: any) {
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = expanded.has(node.id);
-    const [showActions, setShowActions] = useState(false);
+
 
     // Visual styles for Parent vs Child
     const isRoot = level === 0;
     const rowClass = isRoot ? "bg-white hover:bg-gray-50" : "bg-white hover:bg-gray-50";
     const textClass = isRoot ? "font-bold text-gray-900" : "font-medium text-gray-600";
     const iconColor = isRoot ? "text-gray-400" : "text-gray-300";
+
+    const handleArchive = () => {
+        if (confirm('Are you sure you want to archive this category?')) {
+            // In real app, call delete/archive action
+            alert('Archived! (Simulation)');
+        }
+    };
 
     return (
         <div className="group transition-colors">
@@ -173,48 +186,56 @@ function TreeNode({ node, level, expanded, onToggle }: any) {
                     </div>
                 </div>
 
-                {/* Status */}
-                <div className="w-32 text-center flex-shrink-0">
+                {/* Status Column */}
+                <div className="w-24 text-center flex-shrink-0">
                     {node.is_active ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
-                        </span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm" title="Active"></span>
                     ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Inactive
-                        </span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-400 shadow-sm" title="Inactive"></span>
                     )}
                 </div>
 
-                {/* Actions */}
-                <div className="w-16 text-right pr-4 relative flex-shrink-0">
-                    <button
-                        onClick={() => setShowActions(!showActions)}
-                        onBlur={() => setTimeout(() => setShowActions(false), 200)}
-                        className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition"
+                {/* Inline Actions Column */}
+                <div className="flex items-center gap-2 pr-4 flex-shrink-0">
+                    {/* Edit */}
+                    <Link
+                        href={`/admin/categories/${node.id}`}
+                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                        title="Edit"
                     >
-                        <MoreVertical className="w-4 h-4" />
+                        <Edit className="w-4 h-4" />
+                    </Link>
+
+                    {/* Add Subcategory (Disabled for Level > 0) */}
+                    <button
+                        disabled={level > 0}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition ${level > 0 ? 'text-gray-200 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'}`}
+                        title={level > 0 ? "Cannot add subcategory here" : "Add Subcategory"}
+                    >
+                        <FolderPlus className="w-4 h-4" />
                     </button>
 
-                    {showActions && (
-                        <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden text-left py-1 animate-in fade-in zoom-in-95 duration-100">
-                            <Link href={`/admin/categories/${node.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-gray-700 text-sm">
-                                <Edit className="w-4 h-4 text-gray-400" /> Edit
-                            </Link>
-                            {isRoot && (
-                                <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-gray-700 text-sm">
-                                    <FolderPlus className="w-4 h-4 text-gray-400" /> Add Subcategory
-                                </button>
-                            )}
-                            <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-gray-700 text-sm">
-                                <Layers className="w-4 h-4 text-gray-400" /> Assign Attributes
-                            </button>
-                            <div className="h-px bg-gray-100 my-1"></div>
-                            <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 text-red-600 text-sm">
-                                <Archive className="w-4 h-4 opacity-75" /> Archive
-                            </button>
-                        </div>
-                    )}
+                    {/* Attributes */}
+                    <Link
+                        href={`/admin/categories/${node.id}`}
+                        onClick={(e) => {
+                            // This is a hack to open the attributes tab, ideally logic passes query param
+                            // For now it just goes to edit page where tab is available
+                        }}
+                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition"
+                        title="Assign Attributes"
+                    >
+                        <Layers className="w-4 h-4" />
+                    </Link>
+
+                    {/* Archive */}
+                    <button
+                        onClick={handleArchive}
+                        className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                        title="Archive"
+                    >
+                        <Archive className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 

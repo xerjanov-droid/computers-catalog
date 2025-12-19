@@ -4,7 +4,8 @@ import { CategoriesClient } from '@/components/admin/categories/CategoriesClient
 
 export default async function CategoriesPage() {
     // Service already returns the tree structure
-    const categories = await CategoryService.getAll();
+    // Fetch the strict tree structure as requested
+    const categories = await CategoryService.getTree();
 
     return (
         <CategoriesClient initialCategories={categories} />
