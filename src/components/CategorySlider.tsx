@@ -13,7 +13,14 @@ interface CategorySliderProps {
 export function CategorySlider({ categories }: CategorySliderProps) {
     const searchParams = useSearchParams();
     const activeId = searchParams.get('category');
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+
+    const getCategoryName = (cat: Category) => {
+        const lang = i18n.language as 'ru' | 'uz' | 'en';
+        if (lang === 'uz') return cat.name_uz || cat.name_ru;
+        if (lang === 'en') return cat.name_en || cat.name_ru;
+        return cat.name_ru;
+    };
 
     return (
         <div className="w-full overflow-x-auto pb-4 pt-2 no-scrollbar">
@@ -65,7 +72,7 @@ export function CategorySlider({ categories }: CategorySliderProps) {
                             "text-[11px] font-bold whitespace-nowrap leading-none pb-1",
                             activeId === String(cat.id) ? "text-[var(--tg-theme-text-color)]" : "text-[var(--tg-theme-hint-color)]"
                         )}>
-                            {cat.name_ru || cat.name_en}
+                            {getCategoryName(cat)}
                         </span>
                     </Link>
                 ))}

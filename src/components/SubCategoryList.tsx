@@ -4,6 +4,7 @@ import { Category } from '@/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 interface SubCategoryListProps {
     subCategories: Category[];
@@ -13,8 +14,16 @@ interface SubCategoryListProps {
 export function SubCategoryList({ subCategories, parentId }: SubCategoryListProps) {
     const searchParams = useSearchParams();
     const activeSub = searchParams.get('sub');
+    const { t, i18n } = useTranslation();
 
     if (!subCategories || subCategories.length === 0) return null;
+
+    const getCategoryName = (cat: Category) => {
+        const lang = i18n.language as 'ru' | 'uz' | 'en';
+        if (lang === 'uz') return cat.name_uz || cat.name_ru;
+        if (lang === 'en') return cat.name_en || cat.name_ru;
+        return cat.name_ru;
+    };
 
     return (
         <div className="w-full overflow-x-auto pb-4 pt-1 no-scrollbar flex gap-2 px-4">
@@ -28,7 +37,7 @@ export function SubCategoryList({ subCategories, parentId }: SubCategoryListProp
                         : "bg-white text-gray-700 border-gray-200"
                 )}
             >
-                Все
+                {t('all')}
             </Link>
 
             {subCategories.map((sub) => (
@@ -42,7 +51,7 @@ export function SubCategoryList({ subCategories, parentId }: SubCategoryListProp
                             : "bg-white text-gray-700 border-gray-200"
                     )}
                 >
-                    {sub.name_ru}
+                    {getCategoryName(sub)}
                 </Link>
             ))}
         </div>

@@ -97,7 +97,7 @@ async function seed() {
                 ]
             },
             {
-                name_ru: 'Накопители', name_uz: 'Saqlash qurilmalari', name_en: 'Storage Devices', icon: '/images/nakopiteli.png',
+                name_ru: 'Накопители', name_uz: 'Saqlash qurilmalari', name_en: 'Storage Devices', icon: '/images/category_peripherals.png',
                 subs: [
                     { name_ru: 'Внешние HDD', name_uz: 'Tashqi HDD', name_en: 'External HDD' },
                     { name_ru: 'Внешние SSD', name_uz: 'Tashqi SSD', name_en: 'External SSD' },
@@ -107,7 +107,7 @@ async function seed() {
                 ]
             },
             {
-                name_ru: 'Аксессуары', name_uz: 'Aksessuarlar', name_en: 'Accessories', icon: '/images/acsessuars.png',
+                name_ru: 'Аксессуары', name_uz: 'Aksessuarlar', name_en: 'Accessories', icon: '/images/category_acsessuars.png',
                 subs: [
                     { name_ru: 'Сумки и рюкзаки', name_uz: 'Sumkalar va ryukzaklar', name_en: 'Bags' },
                     { name_ru: 'Подставки', name_uz: 'Sovutish tagliklari', name_en: 'Cooling Pads' },
@@ -117,7 +117,7 @@ async function seed() {
                 ]
             },
             {
-                name_ru: 'ПО', name_uz: 'Dasturiy ta’minot', name_en: 'Software', icon: '/images/po.png',
+                name_ru: 'ПО', name_uz: 'Dasturiy ta’minot', name_en: 'Software', icon: '/images/category_po.png',
                 subs: [
                     { name_ru: 'Windows', name_uz: 'Operatsion tizimlar (Windows)', name_en: 'OS' },
                     { name_ru: 'Office', name_uz: 'Office paketlar', name_en: 'Office Suites' },
