@@ -41,6 +41,11 @@ export class CharacteristicService {
         return res.rows[0];
     }
 
+    static async getById(id: number): Promise<Characteristic | null> {
+        const res = await query('SELECT * FROM characteristics WHERE id = $1', [id]);
+        return res.rows[0] || null;
+    }
+
     // Category Mapping
     static async getByCategory(categoryId: number): Promise<CategoryCharacteristic[]> {
         const sql = `
