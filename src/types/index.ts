@@ -26,11 +26,17 @@ export interface Product {
     // Status is now stricter, but still a string in DB/Join
     status: 'in_stock' | 'on_order' | 'showroom' | 'out_of_stock';
     image_url?: string;
-    images?: string[];
+    images?: { id: number; image_url: string; is_cover: boolean }[];
     // Dynamic specs
     specs: Record<string, any>;
     // Relations
     category_name_ru?: string;
+    category_slug?: string;
+    subcategory_slug?: string;
+    files?: { id: number; file_url: string; file_type: string }[];
+    wifi?: boolean;
+    duplex?: boolean;
+    color_print?: boolean;
     created_at?: Date;
 }
 

@@ -54,7 +54,7 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                 {product.images && product.images.length > 0 ? (
                     product.images.map((img, idx) => (
                         <div key={idx} className="min-w-full h-full snap-center flex items-center justify-center p-6">
-                            <img src={img} alt={product.title_ru} className="h-full w-auto object-contain mix-blend-multiply" />
+                            <img src={img.image_url} alt={product.title_ru} className="h-full w-auto object-contain mix-blend-multiply" />
                         </div>
                     ))
                 ) : (

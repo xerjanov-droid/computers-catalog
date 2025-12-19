@@ -25,7 +25,7 @@ export class ProductService {
              COALESCE(c2.name_en, c1.name_en) as category_name,
              COALESCE(c2.slug, c1.slug) as category_slug,
              CASE WHEN c2.id IS NOT NULL THEN c1.slug ELSE NULL END as subcategory_slug,
-             (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY order_index ASC LIMIT 1) as main_image
+             (SELECT image_url FROM products_images WHERE product_id = p.id AND is_cover = TRUE LIMIT 1) as main_image
       FROM products p
       LEFT JOIN categories c1 ON p.category_id = c1.id
       LEFT JOIN categories c2 ON c1.parent_id = c2.id
@@ -131,8 +131,8 @@ export class ProductService {
         const product = pRes.rows[0];
 
         // Fetch images
-        const imgRes = await query('SELECT image_url FROM product_images WHERE product_id = $1 ORDER BY order_index', [id]);
-        product.images = imgRes.rows.map(r => r.image_url);
+        const imgRes = await query('SELECT id, image_url, is_cover FROM products_images WHERE product_id = $1 ORDER BY order_index, id', [id]);
+        product.images = imgRes.rows;
 
         const fileRes = await query('SELECT * FROM product_files WHERE product_id = $1', [id]);
         product.files = fileRes.rows;
@@ -175,7 +175,7 @@ export class ProductService {
         const original = await this.getById(id);
         if (!original) throw new Error("Product not found");
 
-        const newName = `${original.name_ru} (Copy)`; // Simplified naming
+        const newName = `${original.title_ru} (Copy)`; // Simplified naming
 
         const res = await query(`
             INSERT INTO products (
