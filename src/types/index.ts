@@ -24,7 +24,7 @@ export interface Product {
     price: number;
     currency: string;
     // Status is now stricter, but still a string in DB/Join
-    status: 'in_stock' | 'on_order' | 'showroom' | 'out_of_stock';
+    status: 'in_stock' | 'pre_order' | 'showroom' | 'archived';
     image_url?: string;
     images?: { id: number; image_url: string; is_cover: boolean }[];
     // Dynamic specs

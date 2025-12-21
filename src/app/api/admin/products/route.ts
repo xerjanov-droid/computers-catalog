@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { ProductService } from '@/services/product.service';
+
+export async function GET(request: NextRequest) {
+    try {
+        const { searchParams } = new URL(request.url);
+
+        const filters = {
+            search: searchParams.get('search') || undefined,
+            category: searchParams.get('category_id') && searchParams.get('category_id') !== 'all'
+                ? parseInt(searchParams.get('category_id')!)
+                : undefined,
+            sub: searchParams.get('subcategory_id') && searchParams.get('subcategory_id') !== 'all'
+                ? parseInt(searchParams.get('subcategory_id')!)
+                : undefined,
+            availability: searchParams.get('status') && searchParams.get('status') !== 'all'
+                ? [searchParams.get('status')!]
+                : undefined,
+        };
+
+        const products = await ProductService.getAll(filters);
+        return NextResponse.json(products);
+    } catch (error) {
+        logger.error('Fetch products failed', error);
+        return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
+    }
+}
 
 export async function POST(request: NextRequest) {
     try {

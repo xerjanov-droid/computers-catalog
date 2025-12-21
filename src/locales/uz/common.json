@@ -2,11 +2,11 @@
     "search_placeholder": "Nom yoki artikul bo‘yicha qidirish...",
     "all": "Barchasi",
     "price": "Narx",
-    "in_stock": "Mavjud",
-    "availability": {
+    "statuses": {
         "in_stock": "Mavjud",
-        "on_order": "Buyurtma asosida",
-        "showroom": "Shourumda"
+        "pre_order": "Buyurtma asosida",
+        "showroom": "Shourumda",
+        "archived": "Arxivlangan"
     },
     "filters": {
         "title": "Filtrlar",

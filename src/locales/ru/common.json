@@ -2,11 +2,11 @@
     "search_placeholder": "Поиск по названию или артикулу...",
     "all": "Все",
     "price": "Цена",
-    "in_stock": "В наличии",
-    "availability": {
+    "statuses": {
         "in_stock": "В наличии",
-        "on_order": "Под заказ",
-        "showroom": "В шоуруме"
+        "pre_order": "Под заказ",
+        "showroom": "В шоуруме",
+        "archived": "Архив"
     },
     "filters": {
         "title": "Фильтры",

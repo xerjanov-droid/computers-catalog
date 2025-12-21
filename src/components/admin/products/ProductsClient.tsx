@@ -1,31 +1,96 @@
 "use client";
 
-import { useState } from 'react';
-import { Product, Category } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { Product } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
-import { Plus, Search, Filter as FilterIcon, MoreVertical, Edit, Copy, Trash, Archive } from 'lucide-react';
-import { bulkUpdateStatus, bulkDeleteProducts, duplicateProduct } from '@/app/actions/products';
+import { Plus, Search, Copy, Edit, Archive, Loader2 } from 'lucide-react';
+import { bulkUpdateStatus, duplicateProduct } from '@/app/actions/products';
 import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 interface Props {
-    initialProducts: Product[];
     stats: { total: number; in_stock: number; pre_order: number; showroom: number };
     categories: any[];
 }
 
-export function ProductsClient({ initialProducts, stats, categories }: Props) {
+export function ProductsClient({ stats, categories }: Props) {
     const { t } = useAdminLanguage();
-    const [products, setProducts] = useState(initialProducts);
-    const [selected, setSelected] = useState<Set<number>>(new Set());
-    const [filters, setFilters] = useState({ search: '', category: '', status: '' });
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    // Filter Logic
-    const filteredProducts = products.filter(p => {
-        const matchesSearch = p.title_ru.toLowerCase().includes(filters.search.toLowerCase());
-        const matchesCategory = filters.category ? p.category_id === parseInt(filters.category) : true;
-        const matchesStatus = filters.status ? p.status === filters.status : true;
-        return matchesSearch && matchesCategory && matchesStatus;
-    });
+    // 1. URL State
+    const currentSearch = searchParams.get('search') || '';
+    const currentCategory = searchParams.get('category_id') || '';
+    const currentSubcategory = searchParams.get('subcategory_id') || '';
+    const currentStatus = searchParams.get('status') || '';
+
+    // 2. Local State
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState<Set<number>>(new Set());
+    const [searchTerm, setSearchTerm] = useState(currentSearch);
+
+    // 3. Debounced Search Term (to avoid too many API calls)
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 400); // 400ms debounce
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    // 4. Fetch Products
+    const fetchProducts = useCallback(async () => {
+        setLoading(true);
+        try {
+            const params = new URLSearchParams();
+            if (debouncedSearch) params.set('search', debouncedSearch);
+            if (currentCategory && currentCategory !== 'all') params.set('category_id', currentCategory);
+            if (currentSubcategory && currentSubcategory !== 'all') params.set('subcategory_id', currentSubcategory);
+            if (currentStatus && currentStatus !== 'all') params.set('status', currentStatus);
+
+            const res = await fetch(`/api/admin/products?${params.toString()}`);
+            if (!res.ok) throw new Error('Failed to fetch');
+            const data = await res.json();
+            setProducts(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [debouncedSearch, currentCategory, currentSubcategory, currentStatus]);
+
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
+
+    // 5. Derived Data for UI
+    const parentCategories = categories.filter(c => !c.parent_id);
+    const subCategories = currentCategory && currentCategory !== 'all'
+        ? categories.filter(c => c.parent_id === parseInt(currentCategory))
+        : [];
+
+    // 4. Helper to update URL
+    const updateFilters = useCallback((updates: Record<string, string | null>) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value && value !== '' && value !== 'all') {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+        });
+
+        // Reset subcategory if category changes
+        if (updates.category_id !== undefined && updates.category_id !== currentCategory) {
+            params.delete('subcategory_id');
+        }
+
+        router.push(`${pathname}?${params.toString()}`);
+    }, [searchParams, router, pathname, currentCategory]);
 
     // Selection Logic
     const toggleSelect = (id: number) => {
@@ -36,8 +101,8 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
     };
 
     const toggleSelectAll = () => {
-        if (selected.size === filteredProducts.length) setSelected(new Set());
-        else setSelected(new Set(filteredProducts.map(p => p.id)));
+        if (selected.size === products.length) setSelected(new Set());
+        else setSelected(new Set(products.map(p => p.id)));
     };
 
     // Bulk Actions
@@ -45,13 +110,12 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
         if (!confirm(`Change status of ${selected.size} items to ${status}?`)) return;
         await bulkUpdateStatus(Array.from(selected), status);
         setSelected(new Set());
-        // In a real app we'd refresh data here or use optimistic updates
-        window.location.reload();
+        fetchProducts(); // Refresh list
     };
 
     const handleDuplicate = async (id: number) => {
         await duplicateProduct(id);
-        window.location.reload();
+        fetchProducts(); // Refresh list
     };
 
     return (
@@ -67,34 +131,61 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
             {/* 2. Filter Bar */}
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex gap-4 w-full md:w-auto flex-1">
+                    {/* Search */}
                     <div className="relative flex-1 max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder={t('common.search')}
                             className="w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={filters.search}
-                            onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
                         />
                     </div>
+
+                    {/* Parent Category */}
+                    <select
+                        className="px-4 py-2 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]"
+                        value={currentCategory || 'all'}
+                        onChange={e => updateFilters({ category_id: e.target.value })}
+                    >
+                        <option value="all">{t('filters.all_categories')}</option>
+                        {parentCategories.map(c => <option key={c.id} value={c.id}>{c.name_ru}</option>)}
+                    </select>
+
+                    {/* Sub Category (Dependent) */}
+                    <select
+                        className="px-4 py-2 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px] disabled:opacity-50 disabled:bg-gray-50"
+                        value={currentSubcategory || 'all'}
+                        onChange={e => updateFilters({ subcategory_id: e.target.value })}
+                        disabled={!currentCategory || currentCategory === 'all' || subCategories.length === 0}
+                    >
+                        <option value="all">{subCategories.length === 0 && currentCategory && currentCategory !== 'all' ? 'No Subcategories' : t('filters.all_subcategories')}</option>
+                        {subCategories.map(c => <option key={c.id} value={c.id}>{c.name_ru}</option>)}
+                    </select>
+
+                    {/* Status */}
                     <select
                         className="px-4 py-2 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500"
-                        value={filters.category}
-                        onChange={e => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                        value={currentStatus || 'all'}
+                        onChange={e => updateFilters({ status: e.target.value })}
                     >
-                        <option value="">All Categories</option>
-                        {categories.map(c => <option key={c.id} value={c.id}>{c.name_ru}</option>)}
+                        <option value="all">{t('filters.all_statuses')}</option>
+                        <option value="in_stock">{t('statuses.in_stock')}</option>
+                        <option value="pre_order">{t('statuses.pre_order')}</option>
+                        <option value="showroom">{t('statuses.showroom')}</option>
+                        <option value="archived">{t('statuses.archived')}</option>
                     </select>
-                    <select
-                        className="px-4 py-2 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500"
-                        value={filters.status}
-                        onChange={e => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                    >
-                        <option value="">All Statuses</option>
-                        <option value="in_stock">In Stock</option>
-                        <option value="pre_order">Pre-order</option>
-                        <option value="showroom">Showroom</option>
-                    </select>
+
+                    {/* Reset Button (Optional but useful) */}
+                    {(currentSearch || currentCategory || currentStatus) && (
+                        <button
+                            onClick={() => router.push(pathname)}
+                            className="px-3 py-2 text-sm text-gray-500 hover:text-red-500 transition"
+                        >
+                            {t('filters.clear')}
+                        </button>
+                    )}
                 </div>
                 <Link
                     href="/admin/products/new"
@@ -111,13 +202,13 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
                     <span className="font-medium text-sm">{selected.size} selected</span>
                     <div className="h-4 w-px bg-gray-700"></div>
                     <div className="flex gap-2">
-                        <button onClick={() => handleBulkStatus('in_stock')} className="hover:text-green-400 text-sm font-medium transition">Set In Stock</button>
-                        <button onClick={() => handleBulkStatus('pre_order')} className="hover:text-yellow-400 text-sm font-medium transition">Set Pre-order</button>
-                        <button onClick={() => handleBulkStatus('showroom')} className="hover:text-blue-400 text-sm font-medium transition">Set Showroom</button>
+                        <button onClick={() => handleBulkStatus('in_stock')} className="hover:text-green-400 text-sm font-medium transition">{t('statuses.in_stock')}</button>
+                        <button onClick={() => handleBulkStatus('pre_order')} className="hover:text-yellow-400 text-sm font-medium transition">{t('statuses.pre_order')}</button>
+                        <button onClick={() => handleBulkStatus('showroom')} className="hover:text-blue-400 text-sm font-medium transition">{t('statuses.showroom')}</button>
                     </div>
                     <div className="h-4 w-px bg-gray-700"></div>
-                    <button className="text-red-400 hover:text-red-300 text-sm font-medium flex items-center gap-1">
-                        <Archive className="w-4 h-4" /> Deactivate
+                    <button onClick={() => handleBulkStatus('archived')} className="text-red-400 hover:text-red-300 text-sm font-medium flex items-center gap-1">
+                        <Archive className="w-4 h-4" /> {t('statuses.archived')}
                     </button>
                 </div>
             )}
@@ -131,60 +222,77 @@ export function ProductsClient({ initialProducts, stats, categories }: Props) {
                                 <input
                                     type="checkbox"
                                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    checked={selected.size === filteredProducts.length && filteredProducts.length > 0}
+                                    checked={selected.size === products.length && products.length > 0}
                                     onChange={toggleSelectAll}
                                 />
                             </th>
-                            <th className="px-6 py-4">Product</th>
-                            <th className="px-6 py-4">Category</th>
-                            <th className="px-6 py-4">Price</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
+                            <th className="px-6 py-4">{t('product.model')}</th>
+                            <th className="px-6 py-4">{t('common.main_category')}</th>
+                            <th className="px-6 py-4">{t('common.price')}</th>
+                            <th className="px-6 py-4">{t('common.status')}</th>
+                            <th className="px-6 py-4 text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {filteredProducts.map(product => (
-                            <tr key={product.id} className={`hover:bg-gray-50 transition ${selected.has(product.id) ? 'bg-blue-50/50' : ''}`}>
-                                <td className="px-6 py-4">
-                                    <input
-                                        type="checkbox"
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked={selected.has(product.id)}
-                                        onChange={() => toggleSelect(product.id)}
-                                    />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0">
-                                            {/* Img placeholder */}
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-gray-900">{product.title_ru}</div>
-                                            <div className="text-xs text-gray-500">SKU: {product.id}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">
-                                    {categories.find(c => c.id === product.category_id)?.name_ru || '-'}
-                                </td>
-                                <td className="px-6 py-4 font-mono text-sm">
-                                    ${product.price}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <StatusBadge status={product.status} />
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button onClick={() => handleDuplicate(product.id)} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Duplicate">
-                                            <Copy className="w-4 h-4" />
-                                        </button>
-                                        <Link href={`/admin/products/${product.id}`} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Edit">
-                                            <Edit className="w-4 h-4" />
-                                        </Link>
+                        {loading ? (
+                            <tr>
+                                <td colSpan={6} className="text-center py-12 text-gray-500">
+                                    <div className="flex justify-center items-center gap-2">
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Loading products...
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        ) : products.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="text-center py-12 text-gray-500">
+                                    No products found matching your filters.
+                                </td>
+                            </tr>
+                        ) : (
+                            products.map(product => (
+                                <tr key={product.id} className={`hover:bg-gray-50 transition ${selected.has(product.id) ? 'bg-blue-50/50' : ''}`}>
+                                    <td className="px-6 py-4">
+                                        <input
+                                            type="checkbox"
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            checked={selected.has(product.id)}
+                                            onChange={() => toggleSelect(product.id)}
+                                        />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0">
+                                                {/* Img placeholder */}
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-gray-900">{product.title_ru}</div>
+                                                <div className="text-xs text-gray-500">SKU: {product.id}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                        {categories.find(c => c.id === product.category_id)?.name_ru || '-'}
+                                    </td>
+                                    <td className="px-6 py-4 font-mono text-sm">
+                                        ${product.price}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <StatusBadge status={product.status} t={t} />
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button onClick={() => handleDuplicate(product.id)} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Duplicate">
+                                                <Copy className="w-4 h-4" />
+                                            </button>
+                                            <Link href={`/admin/products/${product.id}`} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Edit">
+                                                <Edit className="w-4 h-4" />
+                                            </Link>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -207,19 +315,19 @@ function MetricBadge({ label, count, color }: any) {
     );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string, t: any }) {
     const styles: any = {
-        in_stock: { bg: 'bg-green-50', text: 'text-green-700', label: 'В наличии', dot: 'bg-green-500' },
-        pre_order: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Под заказ', dot: 'bg-yellow-500' },
-        showroom: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'В шоуруме', dot: 'bg-blue-500' },
-        draft: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Draft', dot: 'bg-gray-400' },
+        in_stock: { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
+        pre_order: { bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-500' },
+        showroom: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
+        archived: { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-500' },
     };
-    const s = styles[status] || styles.draft;
+    const style = styles[status] || styles.in_stock;
 
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${s.bg} ${s.text}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
-            {s.label}
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`}></span>
+            {t ? t(`statuses.${status}`) : status}
         </span>
     );
 }

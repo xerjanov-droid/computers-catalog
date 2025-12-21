@@ -3,7 +3,11 @@ import { query } from '@/lib/db';
 import { ProductService } from '@/services/product.service';
 import { ProductsClient } from '@/components/admin/products/ProductsClient';
 
-export default async function ProductsPage() {
+interface Props {
+    searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default async function ProductsPage({ searchParams }: Props) {
     // 1. Fetch Stats
     // Using raw query for speed
     const statsRes = await query(`
@@ -22,14 +26,11 @@ export default async function ProductsPage() {
         showroom: parseInt(statsRes.rows[0].showroom) || 0
     };
 
-    // 2. Fetch Products (Initial Page)
-    // We'll pass all for now, assuming pagination later
-    const products = await ProductService.getAll({});
-    const categories = (await query('SELECT id, name_ru FROM categories')).rows;
+    // 2. Fetch Categories
+    const categories = (await query('SELECT id, name_ru, name_uz, name_en, parent_id FROM categories ORDER BY name_ru')).rows;
 
     return (
         <ProductsClient
-            initialProducts={products}
             stats={stats}
             categories={categories}
         />

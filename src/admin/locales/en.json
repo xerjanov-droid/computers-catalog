@@ -40,7 +40,19 @@
         "search": "Search...",
         "back": "Back",
         "status": "Status",
-        "date": "Date"
+        "date": "Date",
+        "all": "All",
+        "main_category": "Category",
+        "price": "Price"
+    },
+    "product": {
+        "model": "Model"
+    },
+    "filters": {
+        "all_categories": "All Categories",
+        "all_subcategories": "All Subcategories",
+        "all_statuses": "All",
+        "clear": "Reset"
     },
     "characteristics": {
         "title": "Characteristics Dictionary",
@@ -64,5 +76,11 @@
             "options_label": "Dropdown Options",
             "add_option": "Add"
         }
+    },
+    "statuses": {
+        "in_stock": "In Stock",
+        "pre_order": "Pre-order",
+        "showroom": "Showroom",
+        "archived": "Archived"
     }
 }

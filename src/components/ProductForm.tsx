@@ -21,37 +21,45 @@ export function ProductForm({ initialData }: ProductFormProps) {
     const [categories, setCategories] = useState<any[]>([]);
     const [selectedMain, setSelectedMain] = useState<number | undefined>(undefined);
 
-    // Initial load
+    // Initial load & Reset
     useEffect(() => {
+        // Fetch categories
         fetch('/api/categories').then(res => res.json()).then(data => {
             setCategories(data);
-            // Verify if initialData has a category
-            if (initialData?.category_id) {
-                const sub = data.find((c: any) => c.id === initialData.category_id);
-                if (sub && sub.parent_id) {
-                    setSelectedMain(sub.parent_id);
-                }
-            }
         });
-    }, [initialData]);
+    }, []);
 
-    // Minimal state for demo. Real app needs form library (react-hook-form) + zod
-    const [formData, setFormData] = useState<Partial<Product>>(() => {
-        if (initialData) {
-            return {
-                ...initialData,
-                status: initialData.status === 'pre_order' ? 'on_order' : initialData.status
-            };
-        }
-        return {
-            status: 'in_stock',
-            technology: 'laser',
-            currency: 'UZS',
-            wifi: false,
-            duplex: false,
-            color_print: false,
-        };
+    // State for form data
+    const [formData, setFormData] = useState<Partial<Product>>({
+        status: 'in_stock',
+        technology: 'laser',
+        currency: 'UZS',
+        wifi: false,
+        duplex: false,
+        color_print: false,
     });
+
+    // Form Population from props (TT: 2.1)
+    useEffect(() => {
+        if (initialData) {
+            // Map legacy 'on_order' to 'pre_order' if present
+            const safeStatus = (initialData.status as string) === 'on_order' ? 'pre_order' : initialData.status;
+
+            setFormData({
+                ...initialData,
+                status: safeStatus
+            });
+
+            // Set main category if present (using the new API fields or falling back)
+            if ((initialData as any).main_category_id) {
+                setSelectedMain((initialData as any).main_category_id);
+            } else if (initialData.category_id) {
+                // Fallback logic if API didn't return main_category_id yet (cached data?)
+                // We'll rely on the categories list loading to find parent... 
+                // But better to trust the prop if it's there.
+            }
+        }
+    }, [initialData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -65,6 +73,17 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validation (TT: 3)
+        if (!formData.brand || !formData.brand.trim()) {
+            alert("Brand is required!");
+            return;
+        }
+        if (!formData.model || !formData.model.trim()) {
+            alert("Model is required!");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -82,7 +101,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 router.push('/admin/products');
                 router.refresh();
             } else {
-                alert('Error saving product'); // TODO: Better error handling
+                alert('Error saving product');
             }
         } catch (e) {
             console.error(e);
@@ -210,9 +229,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 <div>
                     <label className="block text-sm font-medium mb-1">Status</label>
                     <select name="status" className="w-full border p-2 rounded" value={formData.status} onChange={handleChange}>
-                        <option value="in_stock">{t('availability.in_stock')}</option>
-                        <option value="on_order">{t('availability.on_order')}</option>
-                        <option value="showroom">{t('availability.showroom')}</option>
+                        <option value="in_stock">{t('statuses.in_stock')}</option>
+                        <option value="pre_order">{t('statuses.pre_order')}</option>
+                        <option value="showroom">{t('statuses.showroom')}</option>
+                        <option value="archived">{t('statuses.archived')}</option>
                     </select>
                 </div>
 

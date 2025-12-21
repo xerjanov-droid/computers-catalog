@@ -40,7 +40,19 @@
         "search": "Поиск...",
         "back": "Назад",
         "status": "Статус",
-        "date": "Дата"
+        "date": "Дата",
+        "all": "Все",
+        "main_category": "Категория",
+        "price": "Цена"
+    },
+    "product": {
+        "model": "Модель"
+    },
+    "filters": {
+        "all_categories": "Все категории",
+        "all_subcategories": "Все подкатегории",
+        "all_statuses": "Все",
+        "clear": "Сбросить"
     },
     "characteristics": {
         "title": "Словарь характеристик",
@@ -64,5 +76,11 @@
             "options_label": "Опции списка",
             "add_option": "Добавить"
         }
+    },
+    "statuses": {
+        "in_stock": "В наличии",
+        "pre_order": "Под заказ",
+        "showroom": "В шоуруме",
+        "archived": "Архив"
     }
 }

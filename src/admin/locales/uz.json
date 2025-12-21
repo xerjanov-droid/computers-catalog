@@ -40,7 +40,19 @@
         "search": "Qidirish...",
         "back": "Orqaga",
         "status": "Holat",
-        "date": "Sana"
+        "date": "Sana",
+        "all": "Barchasi",
+        "main_category": "Kategoriya",
+        "price": "Narx"
+    },
+    "product": {
+        "model": "Model"
+    },
+    "filters": {
+        "all_categories": "Barcha kategoriyalar",
+        "all_subcategories": "Barcha subkategoriyalar",
+        "all_statuses": "Barchasi",
+        "clear": "Tozalash"
     },
     "characteristics": {
         "title": "Xarakteristikalar lug‘ati",
@@ -64,5 +76,11 @@
             "options_label": "Ro‘yxat variantlari",
             "add_option": "Qo‘shish"
         }
+    },
+    "statuses": {
+        "in_stock": "Mavjud",
+        "pre_order": "Buyurtma asosida",
+        "showroom": "Shourumda",
+        "archived": "Arxivlangan"
     }
 }

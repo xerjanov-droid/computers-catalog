@@ -40,6 +40,13 @@ export class ProductService {
             sql += ` AND c1.is_active = true AND (c2.id IS NULL OR c2.is_active = true)`;
         }
 
+        if (filters.search) {
+            const searchParam = `%${filters.search}%`;
+            sql += ` AND (p.title_ru ILIKE $${paramIndex} OR p.sku ILIKE $${paramIndex} OR p.brand ILIKE $${paramIndex})`;
+            params.push(searchParam);
+            paramIndex++;
+        }
+
         if (filters.price_from) {
             sql += ` AND p.price >= $${paramIndex++}`;
             params.push(filters.price_from);
@@ -51,14 +58,32 @@ export class ProductService {
         }
 
         if (filters.availability && filters.availability.length > 0) {
-            // Handle legacy 'pre_order' status mapping to 'on_order'
-            const statusValues = [...filters.availability];
-            if (statusValues.includes('on_order') && !statusValues.includes('pre_order')) {
-                statusValues.push('pre_order');
-            }
-
+            const statusValues = filters.availability;
             sql += ` AND p.status = ANY($${paramIndex++}::text[])`;
             params.push(statusValues);
+        } else if (!filters.excludeInactive) {
+            // Public API default: Show only active statuses (exclude archived)
+            // excludeInactive=true logic is for admin to show specific things? 
+            // Actually, filters.excludeInactive logic in original code was: "Direct category must be active..."
+            // We need a way to distinguish Admin (show all) vs Public (hide archived).
+            // Usually, Admin passes availability=['in_stock', 'pre_order', 'showroom', 'archived'] or separate flag?
+            // If filters.availability is empty, we assume Public default? 
+            // BUT Admin might want to see ALL including archived.
+            // Let's rely on the caller passing 'archived' if they want it.
+            // If caller is Public, they won't ask for 'archived'.
+            // BUT if caller passes NOTHING, we should default to Active Only for public?
+            // The method signature doesn't imply "AdminByDeault".
+            // Let's assume if no availability filter is passed, we show everything EXCEPT archived by default?
+            // The TT says: "Public API... archived HECH QACHON... WHERE status IN ('in_stock', 'pre_order', 'showroom')"
+
+            // To be safe, we will add a default exclusion of 'archived' unless explicit availability list contains it?
+            // OR simpler: The calling code for Public API should set availability=['in_stock', 'pre_order', 'showroom'].
+            // However, existing calls might not set it.
+
+            // We'll enforce: If availability is NOT provided, show ('in_stock', 'pre_order', 'showroom').
+            // If availability IS provided, use it (Admin can ask for 'archived').
+
+            sql += ` AND p.status IN ('in_stock', 'pre_order', 'showroom')`;
         }
 
         if (filters.sub) {
@@ -128,7 +153,9 @@ export class ProductService {
       SELECT p.*, 
              COALESCE(c2.name_ru, c1.name_ru) as category_name_ru,
              COALESCE(c2.slug, c1.slug) as category_slug,
-             CASE WHEN c2.id IS NOT NULL THEN c1.slug ELSE NULL END as subcategory_slug
+             CASE WHEN c2.id IS NOT NULL THEN c1.slug ELSE NULL END as subcategory_slug,
+             CASE WHEN c1.parent_id IS NOT NULL THEN c1.parent_id ELSE c1.id END as main_category_id,
+             CASE WHEN c1.parent_id IS NOT NULL THEN c1.id ELSE NULL END as sub_category_id
       FROM products p
       LEFT JOIN categories c1 ON p.category_id = c1.id
       LEFT JOIN categories c2 ON c1.parent_id = c2.id
