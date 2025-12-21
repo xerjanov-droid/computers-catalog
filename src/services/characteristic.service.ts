@@ -1,95 +1,151 @@
+
 import { query } from '@/lib/db';
-import { Characteristic, CategoryCharacteristic } from '@/types';
+import { Characteristic } from '@/types';
 
 export class CharacteristicService {
-    // Dictionary CRUD
     static async getAll(): Promise<Characteristic[]> {
-        const res = await query('SELECT * FROM characteristics ORDER BY key ASC');
+        const res = await query('SELECT * FROM characteristics ORDER BY id DESC');
         return res.rows;
-    }
-
-    static async create(data: Omit<Characteristic, 'id'>): Promise<Characteristic> {
-        const sql = `
-            INSERT INTO characteristics (key, type, name_ru, name_uz, name_en, options, is_filterable)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING *
-        `;
-        // Ensure options is stringified if it's an object/array, though pg handles JSONB
-        const res = await query(sql, [
-            data.key, data.type, data.name_ru, data.name_uz, data.name_en,
-            JSON.stringify(data.options || []), data.is_filterable
-        ]);
-        return res.rows[0];
-    }
-
-    static async update(id: number, data: Partial<Characteristic>): Promise<Characteristic> {
-        // Build dynamic query
-        const fields: string[] = [];
-        const values: any[] = [];
-        let idx = 1;
-
-        if (data.name_ru) { fields.push(`name_ru=$${idx++}`); values.push(data.name_ru); }
-        if (data.name_uz) { fields.push(`name_uz=$${idx++}`); values.push(data.name_uz); }
-        if (data.name_en) { fields.push(`name_en=$${idx++}`); values.push(data.name_en); }
-        if (data.options) { fields.push(`options=$${idx++}`); values.push(JSON.stringify(data.options)); }
-        if (data.is_filterable !== undefined) { fields.push(`is_filterable=$${idx++}`); values.push(data.is_filterable); }
-        // Type and Key usually shouldn't change easily, but feasible
-
-        values.push(id);
-        const sql = `UPDATE characteristics SET ${fields.join(', ')} WHERE id=$${idx} RETURNING *`;
-        const res = await query(sql, values);
-        return res.rows[0];
     }
 
     static async getById(id: number): Promise<Characteristic | null> {
         const res = await query('SELECT * FROM characteristics WHERE id = $1', [id]);
-        return res.rows[0] || null;
+        const char = res.rows[0];
+
+        if (char && char.type === 'select') {
+            const options = await query('SELECT * FROM characteristic_options WHERE characteristic_id = $1 ORDER BY order_index ASC', [id]);
+            char.options = options.rows;
+        }
+
+        return char || null;
     }
 
-    // Category Mapping
-    static async getByCategory(categoryId: number): Promise<CategoryCharacteristic[]> {
-        const sql = `
-            SELECT cc.*, 
-                   json_build_object(
-                       'id', c.id,
-                       'key', c.key,
-                       'type', c.type,
-                       'name_ru', c.name_ru,
-                       'name_uz', c.name_uz,
-                       'name_en', c.name_en,
-                       'options', c.options
-                   ) as characteristic
-            FROM category_characteristics cc
-            JOIN characteristics c ON cc.characteristic_id = c.id
-            WHERE cc.category_id = $1
+    static async create(data: any): Promise<Characteristic> {
+        const { key, name_ru, name_uz, name_en, type, is_filterable, options } = data;
+
+        const res = await query(
+            `INSERT INTO characteristics (key, name_ru, name_uz, name_en, type, is_filterable, is_active)
+             VALUES ($1, $2, $3, $4, $5, $6, true)
+             RETURNING *`,
+            [key, name_ru, name_uz, name_en, type, is_filterable]
+        );
+
+        const char = res.rows[0];
+
+        if (type === 'select' && options && options.length > 0) {
+            for (const opt of options) {
+                await query(
+                    `INSERT INTO characteristic_options (characteristic_id, value, label_ru, label_uz, label_en, order_index)
+                     VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [char.id, opt.value, opt.label_ru, opt.label_uz, opt.label_en, opt.order_index || 0]
+                );
+            }
+        }
+
+        return this.getById(char.id) as Promise<Characteristic>;
+    }
+
+    static async update(id: number, data: any): Promise<Characteristic> {
+        const { name_ru, name_uz, name_en, is_filterable, options } = data;
+
+        await query(
+            `UPDATE characteristics 
+             SET name_ru = $1, name_uz = $2, name_en = $3, is_filterable = $4
+             WHERE id = $5`,
+            [name_ru, name_uz, name_en, is_filterable, id]
+        );
+
+        // Handle Options
+        // For simplicity, we can clear and re-insert or try to upsert. 
+        // Re-inserting is safer for ensuring order and removing deleted ones.
+        if (data.type === 'select' && options) {
+            await query('DELETE FROM characteristic_options WHERE characteristic_id = $1', [id]);
+            for (const opt of options) {
+                await query(
+                    `INSERT INTO characteristic_options (characteristic_id, value, label_ru, label_uz, label_en, order_index)
+                     VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [id, opt.value, opt.label_ru, opt.label_uz, opt.label_en, opt.order_index || 0]
+                );
+            }
+        }
+
+        return this.getById(id) as Promise<Characteristic>;
+    }
+
+    static async delete(id: number): Promise<void> {
+        // Soft delete
+        await query('UPDATE characteristics SET is_active = false WHERE id = $1', [id]);
+    }
+
+    // Category Linking Methods
+
+    static async getByCategoryId(categoryId: number): Promise<any[]> {
+        const res = await query(`
+            SELECT c.*, cc.is_required, cc.show_in_key_specs, cc.order_index as link_order
+            FROM characteristics c
+            JOIN category_characteristics cc ON c.id = cc.characteristic_id
+            WHERE cc.category_id = $1 AND c.is_active = true
             ORDER BY cc.order_index ASC
-        `;
-        const res = await query(sql, [categoryId]);
-        return res.rows;
+        `, [categoryId]);
+
+        const chars = res.rows;
+
+        // Populate options for select types
+        for (const char of chars) {
+            if (char.type === 'select') {
+                const options = await query('SELECT * FROM characteristic_options WHERE characteristic_id = $1 ORDER BY order_index ASC', [char.id]);
+                char.options = options.rows;
+            }
+        }
+
+        return chars;
     }
 
-    static async linkToCategory(
-        categoryId: number,
-        charId: number,
-        meta: { order_index?: number, is_required?: boolean, show_in_key_specs?: boolean }
-    ) {
-        const sql = `
-            INSERT INTO category_characteristics (category_id, characteristic_id, order_index, is_required, show_in_key_specs)
+    static async assignToCategory(categoryId: number, characteristicId: number, config: { is_required?: boolean, show_in_key_specs?: boolean, order_index?: number }): Promise<void> {
+        await query(`
+            INSERT INTO category_characteristics (category_id, characteristic_id, is_required, show_in_key_specs, order_index)
             VALUES ($1, $2, $3, $4, $5)
-            ON CONFLICT (category_id, characteristic_id) DO UPDATE SET
-                order_index = EXCLUDED.order_index,
-                is_required = EXCLUDED.is_required,
-                show_in_key_specs = EXCLUDED.show_in_key_specs
-        `;
-        await query(sql, [
-            categoryId, charId,
-            meta.order_index ?? 0,
-            meta.is_required ?? false,
-            meta.show_in_key_specs ?? false
+            ON CONFLICT (category_id, characteristic_id) DO UPDATE 
+            SET is_required = EXCLUDED.is_required,
+                show_in_key_specs = EXCLUDED.show_in_key_specs,
+                order_index = EXCLUDED.order_index
+        `, [
+            categoryId,
+            characteristicId,
+            config.is_required || false,
+            config.show_in_key_specs || false,
+            config.order_index || 0
         ]);
     }
 
-    static async unlinkFromCategory(categoryId: number, charId: number) {
-        await query('DELETE FROM category_characteristics WHERE category_id = $1 AND characteristic_id = $2', [categoryId, charId]);
+    static async removeFromCategory(categoryId: number, characteristicId: number): Promise<void> {
+        await query('DELETE FROM category_characteristics WHERE category_id = $1 AND characteristic_id = $2', [categoryId, characteristicId]);
+    }
+
+    static async updateCategoryLink(categoryId: number, characteristicId: number, config: { is_required?: boolean, show_in_key_specs?: boolean, order_index?: number }): Promise<void> {
+        const fields = [];
+        const values: (number | boolean)[] = [categoryId, characteristicId];
+        let idx = 3;
+
+        if (config.is_required !== undefined) {
+            fields.push(`is_required = $${idx++}`);
+            values.push(config.is_required);
+        }
+        if (config.show_in_key_specs !== undefined) {
+            fields.push(`show_in_key_specs = $${idx++}`);
+            values.push(config.show_in_key_specs);
+        }
+        if (config.order_index !== undefined) {
+            fields.push(`order_index = $${idx++}`);
+            values.push(config.order_index);
+        }
+
+        if (fields.length === 0) return;
+
+        await query(
+            `UPDATE category_characteristics SET ${fields.join(', ')} 
+             WHERE category_id = $1 AND characteristic_id = $2`,
+            values
+        );
     }
 }

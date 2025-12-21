@@ -23,7 +23,9 @@
             "b2b_requests": "B2B Заявки",
             "new_pending": "новых ожидают",
             "active_deals": "Активные сделки",
-            "in_progress": "В процессе"
+            "in_progress": "В процессе",
+            "pre_order": "Под заказ",
+            "showroom": "В шоуруме"
         },
         "recent_requests": "Недавние заявки",
         "inventory_status": "Статус склада",

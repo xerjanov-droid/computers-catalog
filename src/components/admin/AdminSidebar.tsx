@@ -31,15 +31,15 @@ export function AdminSidebar() {
             items: [
                 { href: '/admin/products', icon: Package, label: t('nav.products') },
                 { href: '/admin/categories', icon: Folders, label: t('nav.categories') },
-                { href: '/admin/characteristics', icon: List, label: 'Characteristics' },
-                { href: '/admin/filters', icon: Filter, label: 'Filters' },
+                { href: '/admin/characteristics', icon: List, label: t('nav.characteristics') },
+                { href: '/admin/filters', icon: Filter, label: t('nav.filters') },
             ]
         },
         {
             title: t('nav.group_sales'),
             items: [
                 { href: '/admin/requests', icon: FileText, label: t('nav.requests') },
-                { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+                { href: '/admin/orders', icon: ShoppingCart, label: t('nav.orders') },
                 // { href: '/admin/delivery', icon: Truck, label: 'Delivery' },
             ]
         },

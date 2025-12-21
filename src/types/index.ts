@@ -43,12 +43,23 @@ export interface Product {
 export interface Characteristic {
     id: number;
     key: string;
-    type: 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'range';
+    type: 'text' | 'number' | 'boolean' | 'select';
     name_ru: string;
-    name_uz?: string;
-    name_en?: string;
-    options?: any[]; // JSON
+    name_uz: string;
+    name_en: string;
     is_filterable: boolean;
+    is_active: boolean;
+    options?: CharacteristicOption[];
+    created_at?: Date;
+}
+
+export interface CharacteristicOption {
+    id?: number;
+    value: string;
+    label_ru: string;
+    label_uz: string;
+    label_en: string;
+    order_index: number;
 }
 
 export interface CategoryCharacteristic {

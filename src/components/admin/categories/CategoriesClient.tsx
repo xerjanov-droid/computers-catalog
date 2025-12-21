@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function CategoriesClient({ initialCategories }: Props) {
-    const { t } = useAdminLanguage();
+    const { t, language } = useAdminLanguage();
     // In a real app with DnD, we'd use local state for optimistic updates
     const [categories, setCategories] = useState(initialCategories);
     const [expanded, setExpanded] = useState<Set<number>>(new Set(initialCategories.map(c => c.id))); // Default expand roots
@@ -27,6 +27,10 @@ export function CategoriesClient({ initialCategories }: Props) {
         setExpanded(newSet);
     };
 
+    const getCategoryName = (node: Category) => {
+        return node[`name_${language}` as keyof Category] || node.name_ru || node.name_uz || node.name_en || node.name;
+    };
+
     // Filter Logic with Auto-Expand
     const filteredCategories = useMemo(() => {
         if (!searchTerm) return categories;
@@ -35,7 +39,11 @@ export function CategoriesClient({ initialCategories }: Props) {
 
         // Deep filter function
         const filterNode = (node: Category): Category | null => {
-            const matchesSelf = node.name_ru.toLowerCase().includes(lowerTerm);
+            // Search in all languages for better UX
+            const matchesSelf =
+                (node.name_ru || '').toLowerCase().includes(lowerTerm) ||
+                (node.name_uz || '').toLowerCase().includes(lowerTerm) ||
+                (node.name_en || '').toLowerCase().includes(lowerTerm);
 
             let filteredChildren: Category[] = [];
             if (node.children) {
@@ -119,6 +127,7 @@ export function CategoriesClient({ initialCategories }: Props) {
                                 level={0}
                                 expanded={expanded}
                                 onToggle={toggleExpand}
+                                getCategoryName={getCategoryName}
                             />
                         ))
                     )}
@@ -128,7 +137,7 @@ export function CategoriesClient({ initialCategories }: Props) {
     );
 }
 
-function TreeNode({ node, level, expanded, onToggle }: any) {
+function TreeNode({ node, level, expanded, onToggle, getCategoryName }: any) {
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = expanded.has(node.id);
 
@@ -181,7 +190,7 @@ function TreeNode({ node, level, expanded, onToggle }: any) {
                             {level < 2 ? <List className="w-4 h-4" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300 ml-1.5"></div>}
                         </div>
 
-                        <span className={`${textClass} truncate`}>{node.name_ru}</span>
+                        <span className={`${textClass} truncate`}>{getCategoryName(node)}</span>
                         <span className="text-xs text-gray-400 font-mono">({node.product_count})</span>
                     </div>
                 </div>
@@ -249,6 +258,7 @@ function TreeNode({ node, level, expanded, onToggle }: any) {
                             level={level + 1}
                             expanded={expanded}
                             onToggle={onToggle}
+                            getCategoryName={getCategoryName}
                         />
                     ))}
                 </div>

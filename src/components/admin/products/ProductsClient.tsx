@@ -14,10 +14,23 @@ interface Props {
 }
 
 export function ProductsClient({ stats, categories }: Props) {
-    const { t } = useAdminLanguage();
+    const { t, language } = useAdminLanguage();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+
+    // Helper to get localized category name
+    const getCategoryName = (category: any) => {
+        if (!category) return '';
+        return category[`name_${language}`] || category.name_ru || category.name_uz || category.name_en || '-';
+    };
+
+    // Helper to format price: "12 000 000"
+    const formatPrice = (price: number | string) => {
+        const num = Number(price);
+        if (isNaN(num)) return '0';
+        return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    };
 
     // 1. URL State
     const currentSearch = searchParams.get('search') || '';
@@ -124,8 +137,8 @@ export function ProductsClient({ stats, categories }: Props) {
             <div className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
                 <MetricBadge label={t('dashboard.stats.total_products')} count={stats.total} color="gray" />
                 <MetricBadge label={t('dashboard.stats.in_stock')} count={stats.in_stock} color="green" />
-                <MetricBadge label="Pre-order" count={stats.pre_order} color="yellow" />
-                <MetricBadge label="Showroom" count={stats.showroom} color="blue" />
+                <MetricBadge label={t('dashboard.stats.pre_order')} count={stats.pre_order} color="yellow" />
+                <MetricBadge label={t('dashboard.stats.showroom')} count={stats.showroom} color="blue" />
             </div>
 
             {/* 2. Filter Bar */}
@@ -150,7 +163,7 @@ export function ProductsClient({ stats, categories }: Props) {
                         onChange={e => updateFilters({ category_id: e.target.value })}
                     >
                         <option value="all">{t('filters.all_categories')}</option>
-                        {parentCategories.map(c => <option key={c.id} value={c.id}>{c.name_ru}</option>)}
+                        {parentCategories.map(c => <option key={c.id} value={c.id}>{getCategoryName(c)}</option>)}
                     </select>
 
                     {/* Sub Category (Dependent) */}
@@ -161,7 +174,7 @@ export function ProductsClient({ stats, categories }: Props) {
                         disabled={!currentCategory || currentCategory === 'all' || subCategories.length === 0}
                     >
                         <option value="all">{subCategories.length === 0 && currentCategory && currentCategory !== 'all' ? 'No Subcategories' : t('filters.all_subcategories')}</option>
-                        {subCategories.map(c => <option key={c.id} value={c.id}>{c.name_ru}</option>)}
+                        {subCategories.map(c => <option key={c.id} value={c.id}>{getCategoryName(c)}</option>)}
                     </select>
 
                     {/* Status */}
@@ -272,10 +285,10 @@ export function ProductsClient({ stats, categories }: Props) {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">
-                                        {categories.find(c => c.id === product.category_id)?.name_ru || '-'}
+                                        {getCategoryName(categories.find(c => c.id === product.category_id))}
                                     </td>
                                     <td className="px-6 py-4 font-mono text-sm">
-                                        ${product.price}
+                                        {formatPrice(product.price)}
                                     </td>
                                     <td className="px-6 py-4">
                                         <StatusBadge status={product.status} t={t} />

@@ -96,3 +96,37 @@ CREATE TABLE IF NOT EXISTS logs (
   meta JSONB,
   created_at TIMESTAMP DEFAULT now()
 );
+
+-- Characteristics Dictionary
+CREATE TABLE IF NOT EXISTS characteristics (
+  id SERIAL PRIMARY KEY,
+  key VARCHAR(100) UNIQUE NOT NULL, -- Slug (e.g., 'ram', 'cpu')
+  name_ru VARCHAR(100) NOT NULL,
+  name_uz VARCHAR(100) NOT NULL,
+  name_en VARCHAR(100) NOT NULL,
+  type VARCHAR(20) NOT NULL, -- 'text', 'number', 'boolean', 'select'
+  is_filterable BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- Characteristic Options (for type='select')
+CREATE TABLE IF NOT EXISTS characteristic_options (
+  id SERIAL PRIMARY KEY,
+  characteristic_id INT REFERENCES characteristics(id) ON DELETE CASCADE,
+  value VARCHAR(100) NOT NULL,
+  label_ru VARCHAR(100),
+  label_uz VARCHAR(100),
+  label_en VARCHAR(100),
+  order_index INT DEFAULT 0
+);
+
+-- Link Category <-> Characteristic
+CREATE TABLE IF NOT EXISTS category_characteristics (
+  category_id INT REFERENCES categories(id) ON DELETE CASCADE,
+  characteristic_id INT REFERENCES characteristics(id) ON DELETE CASCADE,
+  is_required BOOLEAN DEFAULT false,
+  show_in_key_specs BOOLEAN DEFAULT false, -- Show in product card small specs
+  order_index INT DEFAULT 0,
+  PRIMARY KEY (category_id, characteristic_id)
+);

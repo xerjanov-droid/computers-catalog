@@ -23,7 +23,9 @@
             "b2b_requests": "B2B Requests",
             "new_pending": "new pending",
             "active_deals": "Active Deals",
-            "in_progress": "In progress"
+            "in_progress": "In progress",
+            "pre_order": "Pre-order",
+            "showroom": "Showroom"
         },
         "recent_requests": "Recent Requests",
         "inventory_status": "Inventory Status",

@@ -10,7 +10,10 @@
         "users": "Foydalanuvchilar",
         "roles": "Rollar",
         "settings": "Sozlamalar",
-        "logs": "Loglar"
+        "logs": "Loglar",
+        "group_catalog": "KATALOG",
+        "group_sales": "SAVDO",
+        "group_users": "FOYDALANUVCHILAR"
     },
     "dashboard": {
         "title": "Boshqaruv paneli",
@@ -23,7 +26,9 @@
             "b2b_requests": "B2B So‘rovlar",
             "new_pending": "yangi kutilmoqda",
             "active_deals": "Faol bitimlar",
-            "in_progress": "Jarayonda"
+            "in_progress": "Jarayonda",
+            "pre_order": "Buyurtma asosida",
+            "showroom": "Shourumda"
         },
         "recent_requests": "Oxirgi so‘rovlar",
         "inventory_status": "Ombor holati",
@@ -52,7 +57,11 @@
         "all_categories": "Barcha kategoriyalar",
         "all_subcategories": "Barcha subkategoriyalar",
         "all_statuses": "Barchasi",
-        "clear": "Tozalash"
+        "clear": "Tozalash",
+        "select_category": "Kategoriyani tanlang",
+        "select_subcategory": "Subkategoriyani tanlang",
+        "select_main_first": "Avval asosiy kategoriyani tanlang",
+        "link_existing": "Mavjudini bog‘lash"
     },
     "characteristics": {
         "title": "Xarakteristikalar lug‘ati",
