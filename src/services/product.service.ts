@@ -13,6 +13,7 @@ interface ProductFilters {
     availability?: string[];
     price_from?: number;
     price_to?: number;
+    excludeInactive?: boolean;
 }
 
 export class ProductService {
@@ -33,6 +34,11 @@ export class ProductService {
     `;
         const params: any[] = [];
         let paramIndex = 1;
+
+        if (filters.excludeInactive) {
+            // Direct category must be active AND Parent (if exists) must be active
+            sql += ` AND c1.is_active = true AND (c2.id IS NULL OR c2.is_active = true)`;
+        }
 
         if (filters.price_from) {
             sql += ` AND p.price >= $${paramIndex++}`;
@@ -110,7 +116,10 @@ export class ProductService {
         }
 
         const res = await query(sql, params);
-        return res.rows;
+        return res.rows.map((row: any) => ({
+            ...row,
+            images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : []
+        }));
     }
 
     static async getById(id: number): Promise<Product | null> {

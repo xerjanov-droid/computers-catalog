@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Image */}
                 <div className="aspect-square w-full rounded-lg bg-white p-4 flex items-center justify-center mb-3">
                     {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.title_ru} className="w-full h-full object-contain" />
+                        <img src={product.images[0].image_url} alt={product.title_ru} className="w-full h-full object-contain" />
                     ) : (
                         <div className="text-4xl text-gray-300">🖼️</div>
                     )}

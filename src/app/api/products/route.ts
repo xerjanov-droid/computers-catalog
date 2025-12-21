@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
             sort,
             availability,
             price_from,
-            price_to
+            price_to,
+            excludeInactive: true
         });
 
         return NextResponse.json(products);

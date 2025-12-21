@@ -124,4 +124,11 @@ export class CategoryService {
             throw e;
         }
     }
+    static async toggleStatus(id: number, isActive: boolean): Promise<Category> {
+        const res = await query(
+            'UPDATE categories SET is_active = $1 WHERE id = $2 RETURNING *',
+            [isActive, id]
+        );
+        return res.rows[0];
+    }
 }
