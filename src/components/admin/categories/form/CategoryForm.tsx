@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Category, Characteristic } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
-import { Save, ArrowLeft, GripVertical, Plus, Trash } from 'lucide-react';
+import { Save, ArrowLeft, GripVertical, Plus, Trash, Copy } from 'lucide-react';
 import Link from 'next/link';
+import { CopyCharacteristicsModal } from '@/components/admin/characteristics/CopyCharacteristicsModal';
 
 interface Props {
     category?: Category; // Check if editing or new
@@ -31,14 +32,14 @@ export function CategoryForm({ category, allCharacteristics, linkedCharacteristi
         icon: category?.icon || ''
     });
 
-    // Characteristics State
-    // We map existing links to a local state structure
     const [charLinks, setCharLinks] = useState<any[]>(
         linkedCharacteristics.map((l, i) => ({
             ...l,
             tempId: i // For React keys
         }))
     );
+
+    const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -211,6 +212,17 @@ export function CategoryForm({ category, allCharacteristics, linkedCharacteristi
                             </div>
                         </div>
 
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setIsCopyModalOpen(true)}
+                                className="text-sm text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                            >
+                                <Copy className="w-4 h-4" />
+                                {t('copy_from_existing')}
+                            </button>
+                        </div>
+
                         {charLinks.length === 0 ? (
                             <div className="text-center py-12 text-gray-400 border-2 border-dashed rounded-xl">
                                 No characteristics assigned yet. Add one above.
@@ -280,6 +292,19 @@ export function CategoryForm({ category, allCharacteristics, linkedCharacteristi
                     </div>
                 )}
             </div>
+
+            {category && (
+                <CopyCharacteristicsModal
+                    isOpen={isCopyModalOpen}
+                    onClose={() => setIsCopyModalOpen(false)}
+                    targetCategoryId={category.id}
+                    categories={parents}
+                    onSuccess={() => {
+                        router.refresh();
+                        setIsCopyModalOpen(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

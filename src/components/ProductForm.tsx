@@ -1,9 +1,10 @@
 'use client';
 
-import { Product } from '@/types';
+import { Product, Characteristic } from '@/types';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ImageGallery } from './ImageGallery';
+import { AlertTriangle } from 'lucide-react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +13,7 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ initialData }: ProductFormProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -36,8 +37,39 @@ export function ProductForm({ initialData }: ProductFormProps) {
         currency: 'UZS',
         wifi: false,
         duplex: false,
-        color_print: false,
     });
+
+    // Dynamic Specs State
+    const [characteristics, setCharacteristics] = useState<Characteristic[]>([]);
+    const [specs, setSpecs] = useState<Record<string, any>>({});
+
+    // Sync specs from initialData to local state
+    useEffect(() => {
+        if (initialData?.specs) {
+            setSpecs(initialData.specs);
+        }
+    }, [initialData]);
+
+    // Update formData when specs change
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, specs }));
+    }, [specs]);
+
+    // Fetch characteristics when category changes
+    useEffect(() => {
+        if (formData.category_id) {
+            console.log('Fetching chars for:', formData.category_id);
+            fetch(`/api/admin/categories/${formData.category_id}/characteristics`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Received chars:', data);
+                    setCharacteristics(data)
+                })
+                .catch(err => console.error(err));
+        } else {
+            setCharacteristics([]);
+        }
+    }, [formData.category_id]);
 
     // Form Population from props (TT: 2.1)
     useEffect(() => {
@@ -69,6 +101,21 @@ export function ProductForm({ initialData }: ProductFormProps) {
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
+    };
+
+    const handleSpecChange = (key: string, value: any) => {
+        setSpecs(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newCatId = Number(e.target.value);
+        if (Object.keys(specs).length > 0) {
+            if (!confirm(t('common.confirm_category_change', 'Change category? Technical specifications will be cleared.'))) {
+                return;
+            }
+            setSpecs({});
+        }
+        setFormData(prev => ({ ...prev, category_id: newCatId }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -215,7 +262,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                             required
                             className="w-full border p-2 rounded"
                             value={formData.category_id || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, category_id: Number(e.target.value) }))}
+                            onChange={handleCategoryChange}
                             disabled={!selectedMain}
                         >
                             <option value="">Select Sub...</option>
@@ -225,6 +272,65 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         </select>
                     </div>
                 </div>
+
+                {/* Technical Specifications */}
+                {characteristics.length > 0 && (
+                    <div className="border-t pt-6 mt-6">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            Technical Specifications
+                            <span className="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                                {characteristics.length} fields
+                            </span>
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            {characteristics.map(char => (
+                                <div key={char.id} className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        {char[`name_${i18n.language}` as keyof Characteristic] || char.name_ru || char.key}
+                                        {(char as any).is_required && <span className="text-red-500 ml-1">*</span>}
+                                    </label>
+
+                                    {char.type === 'boolean' ? (
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={!!specs[char.key]}
+                                                    onChange={(e) => handleSpecChange(char.key, e.target.checked)}
+                                                />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <span className="ml-3 text-sm font-medium text-gray-900">{specs[char.key] ? 'Yes' : 'No'}</span>
+                                            </label>
+                                        </div>
+                                    ) : char.type === 'select' ? (
+                                        <select
+                                            className="w-full border p-2 rounded bg-white"
+                                            value={specs[char.key] || ''}
+                                            onChange={(e) => handleSpecChange(char.key, e.target.value)}
+                                        >
+                                            <option value="">Select...</option>
+                                            {char.options?.map((opt: any) => (
+                                                <option key={opt.id || opt.value} value={opt.value}>
+                                                    {opt[`label_${i18n.language}`] || opt.label_ru || opt.value}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={char.type === 'number' ? 'number' : 'text'}
+                                            className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                                            value={specs[char.key] || ''}
+                                            onChange={(e) => handleSpecChange(char.key, e.target.value)}
+                                            placeholder={char.key}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )
+                }
 
                 <div>
                     <label className="block text-sm font-medium mb-1">Status</label>
@@ -239,7 +345,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 <button disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold w-full">
                     {loading ? 'Saving...' : 'Save Product'}
                 </button>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }

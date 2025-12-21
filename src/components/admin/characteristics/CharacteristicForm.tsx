@@ -62,6 +62,17 @@ export function CharacteristicForm({ initialData, categoryId, onClose, onSuccess
         }
     }, [initialData, categoryId]);
 
+    // Auto-generate slug from English name (or RU as fallback)
+    useEffect(() => {
+        if (!initialData && formData.name_en && !formData.key) {
+            const slug = formData.name_en
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '');
+            setFormData(prev => ({ ...prev, key: slug }));
+        }
+    }, [formData.name_en, formData.key, initialData]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -169,7 +180,7 @@ export function CharacteristicForm({ initialData, categoryId, onClose, onSuccess
                     {categoryId && (
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-3">
                             <h3 className="text-xs font-bold text-blue-800 uppercase tracking-wide">
-                                Category Settings ({initialData ? 'Update Link' : 'New Link'})
+                                {t('characteristics.category_settings', 'Kategoriya sozlamalari')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <label className="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-100 hover:border-blue-300 transition">
@@ -179,7 +190,7 @@ export function CharacteristicForm({ initialData, categoryId, onClose, onSuccess
                                         checked={linkData.is_required}
                                         onChange={e => setLinkData({ ...linkData, is_required: e.target.checked })}
                                     />
-                                    <span className="text-sm font-medium text-gray-800">Majburiy (Required)</span>
+                                    <span className="text-sm font-medium text-gray-800">Majburiy</span>
                                 </label>
 
                                 <label className="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-100 hover:border-blue-300 transition">
@@ -189,11 +200,11 @@ export function CharacteristicForm({ initialData, categoryId, onClose, onSuccess
                                         checked={linkData.show_in_key_specs}
                                         onChange={e => setLinkData({ ...linkData, show_in_key_specs: e.target.checked })}
                                     />
-                                    <span className="text-sm font-medium text-gray-800">Spec (Key Specs)</span>
+                                    <span className="text-sm font-medium text-gray-800">Spec</span>
                                 </label>
 
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tartib (Order)</label>
+                                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tartib</label>
                                     <input
                                         type="number"
                                         className="w-full px-2 py-1.5 text-sm border rounded hover:border-blue-400 focus:border-blue-500 outline-none transition"

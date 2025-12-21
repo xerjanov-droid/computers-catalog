@@ -148,4 +148,19 @@ export class CharacteristicService {
             values
         );
     }
+    static async copyCharacteristics(sourceSubcategoryId: number, targetSubcategoryId: number): Promise<void> {
+        // Bulk copy characteristics from source to target subcategory
+        // Update existing links to match source configuration (strict order enforcement)
+        await query(`
+            INSERT INTO category_characteristics (category_id, characteristic_id, is_required, show_in_key_specs, order_index)
+            SELECT $1, characteristic_id, is_required, show_in_key_specs, order_index
+            FROM category_characteristics
+            WHERE category_id = $2
+            ON CONFLICT (category_id, characteristic_id) 
+            DO UPDATE SET
+                is_required = EXCLUDED.is_required,
+                show_in_key_specs = EXCLUDED.show_in_key_specs,
+                order_index = EXCLUDED.order_index
+        `, [targetSubcategoryId, sourceSubcategoryId]);
+    }
 }

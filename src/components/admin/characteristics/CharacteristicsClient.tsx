@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Category, Characteristic } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
-import { Plus, Search, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Check, X, Copy } from 'lucide-react';
 import { LinkCharacteristicModal } from './LinkCharacteristicModal';
 import { CharacteristicForm } from './CharacteristicForm';
+import { CopyCharacteristicsModal } from './CopyCharacteristicsModal';
 import { Link } from 'lucide-react';
 
 interface Props {
@@ -40,6 +41,7 @@ export function CharacteristicsClient({ initialCategories }: Props) {
     // Modal State
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
     const [editingChar, setEditingChar] = useState<CategoryCharacteristic | null>(null);
 
     // Helpers
@@ -94,6 +96,32 @@ export function CharacteristicsClient({ initialCategories }: Props) {
 
         await fetch(`/api/admin/categories/${selectedSubId}/characteristics/${charId}`, { method: 'DELETE' });
         fetchCharacteristics(selectedSubId);
+    };
+
+    // Flatten all subcategories for initial view
+    const displayedRoots = selectedRootId
+        ? roots.filter(r => r.id === selectedRootId)
+        : roots;
+
+    const allSubcategories = displayedRoots.flatMap(root => {
+        if (!root.children || root.children.length === 0) {
+            // Include root itself if it has no children (standalone category)
+            return [{
+                ...root,
+                parentName: '(Root)',
+                rootId: root.id
+            }];
+        }
+        return root.children.map(sub => ({
+            ...sub,
+            parentName: getCategoryName(root),
+            rootId: root.id
+        }));
+    });
+
+    const selectSubcategory = (rootId: number, subId: number) => {
+        setSelectedRootId(rootId);
+        setSelectedSubId(subId);
     };
 
     return (
@@ -170,14 +198,43 @@ export function CharacteristicsClient({ initialCategories }: Props) {
             {/* 2. Content Area */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px]">
                 {!selectedSubId ? (
-                    <div className="flex flex-col items-center justify-center h-[400px] text-gray-400">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <Search className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{t('filters.select_category')}</h3>
-                        <p className="text-sm text-gray-500 max-w-sm text-center">
-                            {t('filters.select_subcategory')}
-                        </p>
+                    // VIEW 1: List of All Subcategories (Restored per user request, strictly table view)
+                    <div className="p-0">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-blue-50 text-gray-700 font-bold border-b border-blue-100">
+                                <tr>
+                                    <th className="px-6 py-4 w-16 text-center bg-blue-100/50 border-r border-blue-100">#</th>
+                                    <th className="px-6 py-4 border-r border-blue-100">{t('common.main_category')}</th>
+                                    <th className="px-6 py-4">Subkategoriya</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {allSubcategories.map((sub, idx) => (
+                                    <tr
+                                        key={sub.id}
+                                        className="hover:bg-blue-50 cursor-pointer transition"
+                                        onClick={() => selectSubcategory(sub.rootId || sub.parent_id!, sub.id)}
+                                    >
+                                        <td className="px-6 py-4 font-mono text-gray-500 text-center bg-gray-50/50 border-r border-gray-100">
+                                            {idx + 1}
+                                        </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900 border-r border-gray-100">
+                                            {sub.parentName}
+                                        </td>
+                                        <td className="px-6 py-4 text-blue-600 font-medium">
+                                            {getCategoryName(sub)}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {allSubcategories.length === 0 && (
+                                    <tr>
+                                        <td colSpan={3} className="px-6 py-12 text-center text-gray-400">
+                                            No categories found.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 ) : (
                     // VIEW 2: Characteristics List for Selected Subcategory
@@ -199,88 +256,76 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                         </div>
 
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-50 border-b">
+                            <thead className="bg-white border-b-2 border-gray-100 text-gray-500 font-bold uppercase text-xs tracking-wider">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12 text-center">#</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Xarakteristika
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                                        Majburiy
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                                        Spec
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                                        Tip
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                                        Tartib
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                                        Amallar
-                                    </th>
+                                    <th className="px-6 py-4 text-center w-16">#</th>
+                                    <th className="px-6 py-4">XARAKTERISTIKA</th>
+                                    <th className="px-6 py-4 text-center w-28">MAJBURIY</th>
+                                    <th className="px-6 py-4 text-center w-28">SPEC</th>
+                                    <th className="px-6 py-4 text-center w-28">TIP</th>
+                                    <th className="px-6 py-4 text-center w-20">TARTIB</th>
+                                    <th className="px-6 py-4 text-center w-32">AMALLAR</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="divide-y divide-gray-100 bg-white">
                                 {characteristics.map((char, index) => (
-                                    <tr key={char.id} className="hover:bg-gray-50 transition">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <tr key={char.id} className="hover:bg-gray-50 transition group">
+                                        <td className="px-6 py-4 text-center text-gray-400 font-mono">
                                             {index + 1}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-gray-900 text-sm">
                                                 {getCharName(char)}
                                             </div>
-                                            <div className="text-xs text-gray-400 font-mono">
+                                            <div className="text-xs text-gray-400 font-mono mt-0.5">
                                                 {char.key}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                        <td className="px-6 py-4 text-center">
                                             {char.is_required ? (
-                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-green-100 text-green-600">
-                                                    <Check className="w-4 h-4" />
+                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-green-100 text-green-500">
+                                                    <Check className="w-4 h-4" strokeWidth={3} />
                                                 </div>
                                             ) : (
-                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-400">
-                                                    <X className="w-4 h-4" />
+                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-300">
+                                                    <Check className="w-4 h-4" />
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                        <td className="px-6 py-4 text-center">
                                             {char.show_in_key_specs ? (
-                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-blue-100 text-blue-600">
-                                                    <Check className="w-4 h-4" />
+                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-blue-100 text-blue-500">
+                                                    <Check className="w-4 h-4" strokeWidth={3} />
                                                 </div>
                                             ) : (
-                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-400">
-                                                    <X className="w-4 h-4" />
+                                                <div className="inline-flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-300">
+                                                    <Check className="w-4 h-4" />
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 uppercase border border-gray-200">
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-600 uppercase border border-gray-200">
                                                 {char.type}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600 font-mono">
+                                        <td className="px-6 py-4 text-center text-sm text-gray-600 font-mono">
                                             {char.link_order ?? 0}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="flex items-center justify-center gap-3">
                                                 <button
                                                     onClick={() => {
                                                         setEditingChar(char);
                                                         setIsFormOpen(true);
                                                     }}
-                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition border border-yellow-200"
+                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-50 text-yellow-500 hover:bg-yellow-100 border border-yellow-200 transition"
                                                     title={t('common.edit')}
                                                 >
                                                     <Pencil className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleUnlink(char.id)}
-                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition border border-red-200"
+                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 transition"
                                                     title="Remove from Category"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -292,7 +337,30 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                                 {characteristics.length === 0 && !loading && (
                                     <tr>
                                         <td colSpan={7} className="px-6 py-12 text-center text-gray-400 font-medium">
-                                            {t('common.no_data') === 'common.no_data' ? 'No characteristics found for this category.' : t('common.no_data')}
+                                            <div className="flex flex-col items-center justify-center gap-4">
+                                                <p className="text-gray-500 mb-2">
+                                                    {t('common.no_data') === 'common.no_data' ? 'No characteristics found for this category.' : t('common.no_data')}
+                                                </p>
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => setIsCopyModalOpen(true)}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                        {t('characteristics.copy_from_existing', 'Copy from Existing')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingChar(null);
+                                                            setIsFormOpen(true);
+                                                        }}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition"
+                                                    >
+                                                        <Plus className="w-4 h-4" />
+                                                        {t('characteristics.create_new', 'Create New')}
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 )}
@@ -334,6 +402,15 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                     }}
                 />
             )}
+
+            <CopyCharacteristicsModal
+                isOpen={isCopyModalOpen}
+                onClose={() => setIsCopyModalOpen(false)}
+                targetRootId={selectedRootId!}
+                targetSubId={selectedSubId!}
+                categories={roots}
+                onSuccess={() => fetchCharacteristics(selectedSubId!)}
+            />
         </div>
     );
 }

@@ -84,5 +84,9 @@
         "pre_order": "Pre-order",
         "showroom": "Showroom",
         "archived": "Archived"
-    }
+    },
+    "copy_characteristics": "Copy Characteristics",
+    "copy_from_existing": "Copy from existing",
+    "copy_confirm_title": "Copy Characteristics",
+    "copy_confirm_message": "Attributes from the selected category will be copied to the current one. Existing attributes will be preserved."
 }

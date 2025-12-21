@@ -67,6 +67,8 @@
         "title": "Xarakteristikalar lug‘ati",
         "subtitle": "Mahsulot xususiyatlarini boshqarish",
         "new_btn": "Yangi xarakteristika",
+        "copy_from_existing": "Mavjuddan nusxa olish",
+        "create_new": "Yangi yaratish",
         "edit_title": "Xarakteristikani tahrirlash",
         "create_title": "Xarakteristika yaratish",
         "table": {
@@ -91,5 +93,11 @@
         "pre_order": "Buyurtma asosida",
         "showroom": "Shourumda",
         "archived": "Arxivlangan"
-    }
+    },
+    "copy_characteristics": "Xarakteristikalar nusxalash",
+    "copy_from_existing": "Mavjudidan nusxalash",
+    "copy_confirm_title": "Xarakteristikalarni nusxalash",
+    "copy_confirm_message": "Tanlangan kategoriyadagi barcha xarakteristikalar ushbu kategoriyaga ko‘chiriladi. Mavjudlari saqlanib qoladi.",
+    "select_source": "Manbani tanlang",
+    "copy_success": "Xarakteristikalar muvaffaqiyatli nusxalandi"
 }
