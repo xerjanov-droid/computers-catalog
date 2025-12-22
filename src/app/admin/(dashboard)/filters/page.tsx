@@ -22,19 +22,27 @@ export default function FiltersPage() {
     const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>('');
     const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [error, setError] = useState('');
 
     // Fetch Categories
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const res = await fetch('/api/admin/categories');
+                if (!res.ok) throw new Error('Failed to fetch categories');
                 const data = await res.json();
+                console.log('Fetched categories:', data);
                 setCategories(data);
             } catch (error) {
                 console.error('Failed to fetch categories', error);
+                setError('Failed to load categories');
             }
         };
         fetchCategories();
+
+        const handleOpenWizard = () => setIsWizardOpen(true);
+        document.addEventListener('open-filter-wizard', handleOpenWizard);
+        return () => document.removeEventListener('open-filter-wizard', handleOpenWizard);
     }, []);
 
     const selectedCategory = categories.find(c => c.id.toString() === selectedCategoryId);
@@ -55,6 +63,15 @@ export default function FiltersPage() {
             </div>
 
             {/* Selection Area */}
+            <div className="text-xs text-gray-400 mb-2">
+                Debug: {categories.length} categories loaded.
+                First: {JSON.stringify(categories[0])}
+            </div>
+            {error && (
+                <div className="p-4 bg-red-50 text-red-600 rounded-xl mb-6">
+                    {error}
+                </div>
+            )}
             <div className="bg-white p-6 rounded-2xl shadow-sm border grid grid-cols-2 gap-6">
                 <div>
                     <label className="block text-sm font-medium mb-2 text-gray-700">
@@ -69,9 +86,9 @@ export default function FiltersPage() {
                         }}
                     >
                         <option value="">-- Choose Category --</option>
-                        {categories.filter(c => !c.parent_id).map(category => (
+                        {categories.filter(c => !c.parent_id || c.parent_id === 0).map(category => (
                             <option key={category.id} value={category.id}>
-                                {category[`name_${language}` as keyof Category] || category.name_ru}
+                                {(category as any)[`name_${language}`] || category.name_ru}
                             </option>
                         ))}
                     </select>
@@ -90,7 +107,7 @@ export default function FiltersPage() {
                         <option value="">-- Choose Subcategory --</option>
                         {subcategories.map(subcategory => (
                             <option key={subcategory.id} value={subcategory.id}>
-                                {subcategory[`name_${language}` as keyof Category] || subcategory.name_ru}
+                                {(subcategory as any)[`name_${language}`] || subcategory.name_ru}
                             </option>
                         ))}
                     </select>
@@ -99,8 +116,8 @@ export default function FiltersPage() {
 
             {/* Content Area */}
             {selectedSubcategoryId ? (
-                <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                    <div className="p-6 border-b flex items-center justify-between bg-gray-50">
+                <>
+                    <div className="p-6 border-b flex items-center justify-between bg-white rounded-t-2xl border-x border-t">
                         <h2 className="font-bold text-lg text-gray-800">
                             Active Filters
                         </h2>
@@ -116,7 +133,7 @@ export default function FiltersPage() {
                         subcategoryId={parseInt(selectedSubcategoryId)}
                         refreshTrigger={refreshTrigger}
                     />
-                </div>
+                </>
             ) : (
                 <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed">
                     <Filter className="w-12 h-12 text-gray-300 mx-auto mb-3" />

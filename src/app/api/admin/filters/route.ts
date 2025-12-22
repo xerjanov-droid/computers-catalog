@@ -16,12 +16,53 @@ export async function GET(request: Request) {
     }
 
     try {
+        // Fetch:
+        // 1. Characteristics linked to this subcategory (merged with their filter config if exists)
+        // 2. Custom filters (not linked to characteristics)
         const result = await query(
-            `SELECT cf.*, c.name_ru as characteristic_name_ru, c.name_uz as characteristic_name_uz, c.name_en as characteristic_name_en, c.key as characteristic_key
-       FROM category_filters cf
-       LEFT JOIN characteristics c ON cf.characteristic_id = c.id
-       WHERE cf.subcategory_id = $1
-       ORDER BY cf.order_index ASC, cf.id ASC`,
+            `
+            SELECT
+                f.id,
+                c.id as characteristic_id,
+                c.key as characteristic_key,
+                c.name_ru as characteristic_name_ru,
+                
+                COALESCE(f.type, c.type) as type,
+                
+                COALESCE(f.label_ru, c.name_ru) as label_ru,
+                COALESCE(f.label_uz, c.name_uz) as label_uz,
+                COALESCE(f.label_en, c.name_en) as label_en,
+                
+                COALESCE(f.is_enabled, false) as is_enabled,
+                COALESCE(f.order_index, cc.order_index) as order_index,
+                
+                COALESCE(f.source_type, 'characteristic') as source_type,
+                (CASE WHEN f.id IS NOT NULL THEN true ELSE false END) as is_configured
+            FROM characteristics c
+            JOIN category_characteristics cc ON c.id = cc.characteristic_id
+            LEFT JOIN category_filters f ON f.characteristic_id = c.id AND f.subcategory_id = $1
+            WHERE cc.category_id = $1
+
+            UNION ALL
+
+            SELECT
+                f.id,
+                f.characteristic_id,
+                NULL as characteristic_key,
+                NULL as characteristic_name_ru,
+                f.type,
+                f.label_ru,
+                f.label_uz,
+                f.label_en,
+                f.is_enabled,
+                f.order_index,
+                f.source_type,
+                true as is_configured
+            FROM category_filters f
+            WHERE f.subcategory_id = $1 AND f.characteristic_id IS NULL
+
+            ORDER BY order_index ASC, id ASC
+            `,
             [subcategoryId]
         );
         return NextResponse.json(result.rows);

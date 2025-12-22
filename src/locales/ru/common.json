@@ -6,7 +6,8 @@
         "in_stock": "В наличии",
         "pre_order": "Под заказ",
         "showroom": "В шоуруме",
-        "archived": "Архив"
+        "archived": "Архив",
+        "negotiable_price": "Цена договорная"
     },
     "filters": {
         "title": "Фильтры",

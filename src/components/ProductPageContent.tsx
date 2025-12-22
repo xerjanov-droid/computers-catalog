@@ -95,6 +95,7 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                 price={product.price}
                 currency={product.currency}
                 status={product.status}
+                is_price_visible={product.is_price_visible}
             />
 
             {/* Quick Info (Key Specs) - Only if > 0 */}

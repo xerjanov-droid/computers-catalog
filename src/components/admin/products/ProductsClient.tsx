@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Product } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
 import { Plus, Search, Copy, Edit, Archive, Loader2 } from 'lucide-react';
-import { bulkUpdateStatus, duplicateProduct } from '@/app/actions/products';
+import { bulkUpdateStatus, duplicateProduct, updateProduct } from '@/app/actions/products';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -131,6 +131,18 @@ export function ProductsClient({ stats, categories }: Props) {
         fetchProducts(); // Refresh list
     };
 
+    const togglePriceVisibility = async (id: number, current: boolean) => {
+        // Optimistic update
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, is_price_visible: !current } : p));
+
+        const res = await updateProduct(id, { is_price_visible: !current });
+        if (!res.success) {
+            // Revert on failure
+            setProducts(prev => prev.map(p => p.id === id ? { ...p, is_price_visible: current } : p));
+            alert('Failed to update: ' + res.error);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* 1. Quick Metrics */}
@@ -242,6 +254,7 @@ export function ProductsClient({ stats, categories }: Props) {
                             <th className="px-6 py-4">{t('product.model')}</th>
                             <th className="px-6 py-4">{t('common.main_category')}</th>
                             <th className="px-6 py-4">{t('common.price')}</th>
+                            <th className="px-6 py-4 text-center">NARX EKRANDA</th>
                             <th className="px-6 py-4">{t('common.status')}</th>
                             <th className="px-6 py-4 text-right">{t('common.actions')}</th>
                         </tr>
@@ -289,6 +302,14 @@ export function ProductsClient({ stats, categories }: Props) {
                                     </td>
                                     <td className="px-6 py-4 font-mono text-sm">
                                         {formatPrice(product.price)}
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <input
+                                            type="checkbox"
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                                            checked={product.is_price_visible ?? true}
+                                            onChange={() => togglePriceVisibility(product.id, product.is_price_visible ?? true)}
+                                        />
                                     </td>
                                     <td className="px-6 py-4">
                                         <StatusBadge status={product.status} t={t} />

@@ -6,7 +6,8 @@
   "availability": {
     "in_stock": "In stock",
     "on_order": "On order",
-    "showroom": "In showroom"
+    "showroom": "In showroom",
+    "negotiable_price": "Negotiable price"
   },
   "filters": {
     "title": "Filters",

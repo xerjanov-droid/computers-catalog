@@ -32,3 +32,13 @@ export async function duplicateProduct(id: number) {
         return { success: false, error: e.message };
     }
 }
+
+export async function updateProduct(id: number, data: any) {
+    try {
+        await ProductService.update(id, data);
+        revalidatePath('/admin/products');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}

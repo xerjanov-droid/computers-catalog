@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
+export async function GET() {
+    try {
+        const res = await query('SELECT * FROM categories ORDER BY order_index ASC');
+        return NextResponse.json(res.rows);
+    } catch (error) {
+        logger.error('Fetch categories failed', error);
+        return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
+    }
+}
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();

@@ -45,10 +45,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
                     <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-400 font-medium">Цена</span>
-                            <span className="text-lg font-extrabold text-[var(--tg-theme-button-color)]">
-                                {new Intl.NumberFormat('uz-UZ').format(product.price)} <span className="text-sm font-bold">{product.currency}</span>
-                            </span>
+                            {product.is_price_visible !== false ? (
+                                <>
+                                    <span className="text-[10px] text-gray-400 font-medium">Цена</span>
+                                    <span className="text-lg font-extrabold text-[var(--tg-theme-button-color)]">
+                                        {new Intl.NumberFormat('uz-UZ').format(product.price)} <span className="text-sm font-bold">{product.currency}</span>
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-sm font-bold text-[var(--tg-theme-button-color)] mt-auto pt-2">
+                                    Kelishilgan narxda
+                                </span>
+                            )}
                         </div>
                         <button className="w-10 h-10 rounded-full bg-[var(--tg-theme-button-color)] flex items-center justify-center text-white text-xl shadow-lg active:scale-95 transition-transform">
                             +

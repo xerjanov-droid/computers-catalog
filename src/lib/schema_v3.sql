@@ -32,3 +32,6 @@ CREATE TABLE IF NOT EXISTS category_filters (
 
 -- Index for fast lookup by subcategory
 CREATE INDEX IF NOT EXISTS idx_category_filters_subcategory ON category_filters(subcategory_id);
+
+-- 11. Product Price Visibility
+ALTER TABLE products ADD COLUMN IF NOT EXISTS is_price_visible BOOLEAN DEFAULT true;

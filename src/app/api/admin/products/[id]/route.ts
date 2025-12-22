@@ -14,13 +14,14 @@ export async function PUT(
         await query(
             `UPDATE products SET 
        category_id=$1, brand=$2, model=$3, sku=$4, title_ru=$5, title_uz=$6, title_en=$7, price=$8, status=$9,
-       technology=$10, wifi=$11, duplex=$12, color_print=$13
-       WHERE id = $14`,
+       technology=$10, wifi=$11, duplex=$12, color_print=$13, is_price_visible=$14
+       WHERE id = $15`,
             [
                 body.category_id, body.brand, body.model, body.sku,
                 body.title_ru, body.title_uz, body.title_en,
                 body.price, body.status,
                 body.technology, body.wifi, body.duplex, body.color_print,
+                body.is_price_visible ?? true,
                 id
             ]
         );

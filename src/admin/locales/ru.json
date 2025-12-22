@@ -88,5 +88,29 @@
     "copy_from_existing": "Копировать из существующей",
     "copy_confirm_title": "Подтверждение",
     "copy_confirm_question": "Скопировать все характеристики из \"{source}\" в \"{target}\"?",
-    "copy_confirm_message": "Существующие характеристики будут сохранены."
+    "copy_confirm_message": "Существующие характеристики будут сохранены.",
+    "users": {
+        "title": "Пользователи",
+        "subtitle": "Управление доступом к админ-панели",
+        "full_name": "ФИО",
+        "email": "Email / Логин",
+        "role": "Роль",
+        "last_login": "Вход",
+        "created_at": "Создан",
+        "form": {
+            "password": "Пароль",
+            "password_hint": "Оставьте пустым, чтобы не менять"
+        },
+        "block": "Блокировать",
+        "unblock": "Разблокировать"
+    },
+    "roles": {
+        "title": "Роли",
+        "subtitle": "Управление правами доступа",
+        "name": "Название",
+        "slug": "Slug",
+        "users_count": "Польз.",
+        "permissions": "Права доступа",
+        "save_permissions": "Сохранить права"
+    }
 }

@@ -6,7 +6,8 @@
         "in_stock": "Mavjud",
         "pre_order": "Buyurtma asosida",
         "showroom": "Shourumda",
-        "archived": "Arxivlangan"
+        "archived": "Arxivlangan",
+        "negotiable_price": "Kelishilgan narxda"
     },
     "filters": {
         "title": "Filtrlar",

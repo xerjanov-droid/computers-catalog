@@ -99,5 +99,29 @@
     "copy_confirm_question": "\"{source}\"dagi barcha xarakteristikalarni \"{target}\"ga ko‘chirishni xohlaysizmi?",
     "copy_confirm_message": "Mavjud xarakteristikalar saqlanib qoladi.",
     "select_source": "Manbani tanlang",
-    "copy_success": "Xarakteristikalar muvaffaqiyatli nusxalandi"
+    "copy_success": "Xarakteristikalar muvaffaqiyatli nusxalandi",
+    "users": {
+        "title": "Foydalanuvchilar",
+        "subtitle": "Admin paneliga kirishni boshqarish",
+        "full_name": "F.I.Sh.",
+        "email": "Email / Login",
+        "role": "Rol",
+        "last_login": "Kirish",
+        "created_at": "Yaratilgan",
+        "form": {
+            "password": "Parol",
+            "password_hint": "O'zgartirmaslik uchun bo'sh qoldiring"
+        },
+        "block": "Bloklash",
+        "unblock": "Blokdan chiqarish"
+    },
+    "roles": {
+        "title": "Rollar",
+        "subtitle": "Kirish huquqlarini boshqarish",
+        "name": "Nomi",
+        "slug": "Slug",
+        "users_count": "Foyd.",
+        "permissions": "Huquqlar",
+        "save_permissions": "Saqlash"
+    }
 }

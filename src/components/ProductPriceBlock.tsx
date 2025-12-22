@@ -9,9 +9,10 @@ interface ProductPriceBlockProps {
     currency: string;
     status: string;
     className?: string;
+    is_price_visible?: boolean;
 }
 
-export function ProductPriceBlock({ price, currency, status, className }: ProductPriceBlockProps) {
+export function ProductPriceBlock({ price, currency, status, className, is_price_visible }: ProductPriceBlockProps) {
     const { t } = useTranslation();
 
     // Format price with spaces: 10 000 000
@@ -31,17 +32,25 @@ export function ProductPriceBlock({ price, currency, status, className }: Produc
             </div>
 
             <div className="flex flex-col">
-                <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-[#111827] tracking-tight">
-                        {formattedPrice}
-                    </span>
-                    <span className="text-xl font-bold text-gray-500">
-                        {currency}
-                    </span>
-                </div>
-                <span className="text-xs text-gray-400 font-medium mt-1">
-                    {t('product.price_with_vat')}
-                </span>
+                {is_price_visible !== false ? (
+                    <>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-extrabold text-[#111827] tracking-tight">
+                                {formattedPrice}
+                            </span>
+                            <span className="text-xl font-bold text-gray-500">
+                                {currency}
+                            </span>
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium mt-1">
+                            {t('product.price_with_vat')}
+                        </span>
+                    </>
+                ) : (
+                    <div className="text-xl font-bold text-gray-800 mt-2">
+                        {t('statuses.negotiable_price') || 'Kelishilgan narxda'}
+                    </div>
+                )}
             </div>
         </div>
     );

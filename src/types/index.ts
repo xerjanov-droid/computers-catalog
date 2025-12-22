@@ -38,6 +38,7 @@ export interface Product {
     wifi?: boolean;
     duplex?: boolean;
     color_print?: boolean;
+    is_price_visible?: boolean;
     created_at?: Date;
 }
 
