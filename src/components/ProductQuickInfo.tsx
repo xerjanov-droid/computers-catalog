@@ -2,8 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import { CharacteristicField } from "@/config/characteristics";
 import { Product } from "@/types";
+
+interface CharacteristicField {
+    id: number;
+    code: string;
+    label: {
+        uz: string;
+        ru: string;
+        en: string;
+    };
+    inputType: string;
+    isRequired: boolean;
+    isSpec: boolean;
+    order: number;
+}
 
 interface ProductQuickInfoProps {
     fields: CharacteristicField[];
@@ -12,7 +25,7 @@ interface ProductQuickInfoProps {
 }
 
 export function ProductQuickInfo({ fields, product, className }: ProductQuickInfoProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     if (!fields || fields.length === 0) return null;
 
@@ -31,12 +44,14 @@ export function ProductQuickInfo({ fields, product, className }: ProductQuickInf
             </h3>
             <div className="grid grid-cols-1 gap-y-2">
                 {fields.map((field) => {
-                    const value = getValue(field.key, field.type);
+                    const value = getValue(field.code, field.inputType);
                     if (value === undefined) return null;
 
+                    const label = field.label?.[i18n.language as 'uz' | 'ru' | 'en'] || field.label?.['ru'] || field.code;
+
                     return (
-                        <div key={field.key} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0 border-dashed">
-                            <span className="text-sm text-gray-500 font-medium">{t(field.labelKey)}</span>
+                        <div key={field.code} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0 border-dashed">
+                            <span className="text-sm text-gray-500 font-medium">{label}</span>
                             <span className="text-sm text-gray-900 font-bold text-right max-w-[60%] truncate">
                                 {String(value)}
                             </span>

@@ -9,35 +9,55 @@ import { ProductPriceBlock } from '@/components/ProductPriceBlock';
 import { ProductQuickInfo } from '@/components/ProductQuickInfo';
 import { ProductFooter } from '@/components/ProductFooter';
 import { Product } from '@/types';
-import { CHARACTERISTICS_SCHEMA_MAP } from "@/config/characteristics";
+import { useState, useEffect } from 'react';
 
 interface ProductPageContentProps {
     product: Product;
 }
 
+
 export function ProductPageContent({ product }: ProductPageContentProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const [allFields, setAllFields] = useState<any[]>([]);
 
-    // 1. Resolve Schema
-    const schemaKey = product.subcategory_slug
-        ? `${product.category_slug}/${product.subcategory_slug}`
-        : product.category_slug;
+    useEffect(() => {
+        async function fetchCharacteristics() {
+            if (!product.category_id) return;
+            try {
+                const res = await fetch(`/api/characteristics?subcategoryId=${product.category_id}`);
+                if (res.ok) {
+                    const json = await res.json();
 
-    const fullSchema =
-        CHARACTERISTICS_SCHEMA_MAP[schemaKey] ??
-        CHARACTERISTICS_SCHEMA_MAP[product.category_slug] ??
-        [];
-
-    // 2. Filter Fields (only those with values)
-    const allFields = fullSchema.filter(field => {
-        const val = product.specs?.[field.key];
-        return val !== undefined && val !== null && val !== "";
-    });
+                    // Filter fields that have values in product.specs
+                    // The API returns the definition. We join it with product values.
+                    const definitions = json.data || [];
+                    const withValues = definitions.filter((def: any) => {
+                        const val = product.specs?.[def.code];
+                        return val !== undefined && val !== null && val !== "";
+                    });
+                    setAllFields(withValues);
+                }
+            } catch (err) {
+                console.error("Failed to load characteristics", err);
+            }
+        }
+        fetchCharacteristics();
+    }, [product.category_id, product.specs]);
 
     // 3. Split Logic (TT: Max 3 for Key)
     const KEY_SPECS_LIMIT = 3;
     const keySpecs = allFields.slice(0, KEY_SPECS_LIMIT);
     const remainingSpecs = allFields.slice(KEY_SPECS_LIMIT);
+
+    // Helper for rendering values if needed here? 
+    // ProductQuickInfo likely takes { key, label, value } or similar.
+    // We should ensure the shape matches what ProductQuickInfo expects.
+    // Let's assume ProductQuickInfo takes `CharacteristicField[]` and does lookups, OR takes { label, value }.
+    // If ProductQuickInfo expects static `CharacteristicField` shape, we need to map our API response to it.
+
+    // API returns: { code, label: {uz,ru,en}, inputType... }
+    // ProductQuickInfo likely expects `key`? Let's check ProductQuickInfo later if needed.
+    // For now, mapping API `code` to `key` should work if types align.
 
     return (
         <main className="min-h-screen bg-white pb-32">
@@ -63,7 +83,6 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                         <span className="text-sm font-medium">No Image</span>
                     </div>
                 )}
-                {/* Simple Dot Indicator override logic could go here if needed */}
                 <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
                     {product.images && product.images.length > 1 && product.images.map((_, i) => (
                         <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-300 first:bg-black/50" />
@@ -88,7 +107,28 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
             )}
 
             {/* Full Specs Expandable Area (Remaining Specs) - Only if > 0 */}
-            {remainingSpecs.length > 0 && (
+            {(remainingSpecs.length > 0 || keySpecs.length > 0) && (
+                /* We probably want to show ALL specs in the details view if user expands, 
+                   OR just remaining. The UI usually duplicates key specs in full list or separates them.
+                   Code below used `remainingSpecs`. Let's stick to that or pass all.
+                   If we use `active` ProductCharacteristics (which fetches itself), we just pass product 
+                   and it will fetch EVERYTHING again? 
+                   Actually, ProductCharacteristics fetches ALL specs. 
+                   If we want it to show only `remainingSpecs`, we might need to pass `fields` prop.
+                   The refactored ProductCharacteristics takes `product` and fetches internally.
+                   BUT, we changed it to accept `product` ONLY. 
+                   Wait, if I pass `fields` to ProductCharacteristics, does it use them? 
+                   Checking my previous refactor... it removed `fields` prop entirely!
+                   So `ProductCharacteristics` component will fetch and display ALL.
+                   If we want "Remaining Specs" hidden, we have a disconnect.
+                   
+                   Option A: Update ProductCharacteristics to accept `initialFields` or `filter`.
+                   Option B: Just let ProductCharacteristics fetch and show ALL specs there. 
+                   Redundancy with key specs is usually fine or desired (Key specs is summary).
+                   
+                   Let's use Option B for simplicity and consistency. `ProductCharacteristics` handles fetching.
+                   We actually don't need `allFields` state here EXCEPT for `ProductQuickInfo`.
+                */
                 <div className="mt-6 px-4">
                     <details className="group border-t border-b border-gray-100">
                         <summary className="flex items-center justify-between py-4 cursor-pointer list-none text-lg font-bold text-gray-900 marker:hidden">
@@ -96,7 +136,9 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                             <span className="transition-transform group-open:rotate-180">▼</span>
                         </summary>
                         <div className="pb-4 animate-fade-in">
-                            <ProductCharacteristics product={product} fields={remainingSpecs} />
+                            {/* We just pass product, it will fetch and render. 
+                                Note: This will render ALL specs, including key specs. This is standard. */}
+                            <ProductCharacteristics product={product} />
                         </div>
                     </details>
                 </div>
@@ -144,3 +186,4 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
         </main>
     );
 }
+

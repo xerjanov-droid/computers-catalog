@@ -9,11 +9,12 @@ interface CopyCharacteristicsModalProps {
     isOpen: boolean;
     onClose: () => void;
     targetCategoryId: number;
+    targetCategoryName: string;
     categories: Category[]; // List of potential source categories
     onSuccess: () => void;
 }
 
-export function CopyCharacteristicsModal({ isOpen, onClose, targetCategoryId, categories, onSuccess }: CopyCharacteristicsModalProps) {
+export function CopyCharacteristicsModal({ isOpen, onClose, targetCategoryId, targetCategoryName, categories, onSuccess }: CopyCharacteristicsModalProps) {
     const { t, language } = useAdminLanguage();
     const [sourceCategoryId, setSourceCategoryId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
@@ -73,14 +74,19 @@ export function CopyCharacteristicsModal({ isOpen, onClose, targetCategoryId, ca
                 </div>
 
                 <div className="p-6 space-y-6">
-                    <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4">
-                        <p className="text-sm text-yellow-800 font-medium">
-                            {t('copy_confirm_title')}
-                        </p>
-                        <p className="text-sm text-yellow-700 mt-1">
-                            {t('copy_confirm_message')}
-                        </p>
-                    </div>
+                    {sourceCategoryId && (
+                        <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4">
+                            <p className="text-sm text-yellow-800 font-medium">
+                                {t('copy_confirm_question')
+                                    .replace('{source}', categories.find(c => c.id === sourceCategoryId) ? getCategoryName(categories.find(c => c.id === sourceCategoryId)!) : 'Source')
+                                    .replace('{target}', targetCategoryName)
+                                }
+                            </p>
+                            <p className="text-sm text-yellow-700 mt-1">
+                                {t('copy_confirm_message')}
+                            </p>
+                        </div>
+                    )}
 
                     <div className="space-y-4">
                         <div>

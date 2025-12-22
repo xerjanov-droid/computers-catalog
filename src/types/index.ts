@@ -10,6 +10,7 @@ export interface Category {
     is_active: boolean;
     children?: Category[];
     product_count?: number; // Aggregated count (direct + children)
+    characteristic_count?: number; // Added for display
 }
 
 export interface Product {

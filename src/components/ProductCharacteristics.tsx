@@ -1,36 +1,60 @@
 "use client";
 
-import { CHARACTERISTICS_SCHEMA_MAP, CharacteristicField } from "@/config/characteristics";
 import { Product } from "@/types";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+
+interface CharacteristicField {
+    id: number;
+    code: string;
+    label: {
+        uz: string;
+        ru: string;
+        en: string;
+    };
+    inputType: string;
+    isRequired: boolean;
+    isSpec: boolean;
+    order: number;
+}
 
 interface ProductCharacteristicsProps {
     product: Product;
-    fields?: CharacteristicField[];
 }
 
-export function ProductCharacteristics({ product, fields }: ProductCharacteristicsProps) {
-    const { t } = useTranslation("common");
+export function ProductCharacteristics({ product }: ProductCharacteristicsProps) {
+    const { t, i18n } = useTranslation("common");
+    const [fields, setFields] = useState<CharacteristicField[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    // Resolve schema if not provided
-    let schema: CharacteristicField[] = fields ?? [];
+    useEffect(() => {
+        // Fetch specs based on subcategory_id
+        // Since product type might not have subcategory_id explicitly if it's a "Product" type from frontend
+        // we check category_id (which IS the subcategory in this strict model) or derive it.
+        // Assuming product.category_id is the subcategory ID as per strict requirement.
 
-    if (!fields) {
-        // Logic: 
-        // 1. Try "category_slug/subcategory_slug"
-        // 2. Try "category_slug"
-        // 3. Fallback empty
-        const schemaKey = product.subcategory_slug
-            ? `${product.category_slug}/${product.subcategory_slug}`
-            : product.category_slug;
+        async function fetchCharacteristics() {
+            if (!product.category_id) return;
 
-        schema =
-            CHARACTERISTICS_SCHEMA_MAP[schemaKey] ??
-            CHARACTERISTICS_SCHEMA_MAP[product.category_slug] ??
-            [];
-    }
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/characteristics?subcategoryId=${product.category_id}`);
+                if (res.ok) {
+                    const json = await res.json();
+                    setFields(json.data || []);
+                }
+            } catch (err) {
+                console.error("Failed to fetch characteristics:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-    if (!schema || schema.length === 0) {
+        fetchCharacteristics();
+    }, [product.category_id]);
+
+    if (loading) return <div className="text-xs text-gray-400">Loading specs...</div>;
+    if (!fields || fields.length === 0) {
         return null;
     }
 
@@ -47,19 +71,25 @@ export function ProductCharacteristics({ product, fields }: ProductCharacteristi
         return val;
     };
 
+    // Helper to get localized label
+    const getLabel = (field: CharacteristicField) => {
+        const lang = i18n.language as 'uz' | 'ru' | 'en';
+        return field.label[lang] || field.label['ru'] || field.code;
+    };
+
     return (
         <div className="space-y-1 mt-2">
-            {schema.map((field) => {
-                const value = getValue(field.key, field.type);
+            {fields.map((field) => {
+                const value = getValue(field.code, field.inputType);
                 if (value === undefined) return null;
 
                 return (
                     <div
-                        key={field.key}
+                        key={field.code}
                         className="flex justify-between text-xs sm:text-sm"
                     >
                         <span className="text-[var(--tg-theme-hint-color)]">
-                            {t(field.labelKey)}
+                            {getLabel(field)}
                         </span>
                         <span className="font-medium text-[var(--tg-theme-text-color)] text-right">
                             {value}

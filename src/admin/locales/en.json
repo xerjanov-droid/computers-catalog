@@ -85,8 +85,8 @@
         "showroom": "Showroom",
         "archived": "Archived"
     },
-    "copy_characteristics": "Copy Characteristics",
     "copy_from_existing": "Copy from existing",
-    "copy_confirm_title": "Copy Characteristics",
-    "copy_confirm_message": "Attributes from the selected category will be copied to the current one. Existing attributes will be preserved."
+    "copy_confirm_title": "Confirm Copy",
+    "copy_confirm_question": "Do you want to copy all characteristics from \"{source}\" to \"{target}\"?",
+    "copy_confirm_message": "Existing attributes will be preserved."
 }

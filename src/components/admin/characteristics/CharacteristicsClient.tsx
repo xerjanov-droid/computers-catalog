@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Category, Characteristic } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
-import { Plus, Search, Pencil, Trash2, Check, X, Copy } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Check, X, Copy, ArrowLeft } from 'lucide-react';
 import { LinkCharacteristicModal } from './LinkCharacteristicModal';
 import { CharacteristicForm } from './CharacteristicForm';
 import { CopyCharacteristicsModal } from './CopyCharacteristicsModal';
@@ -205,7 +205,8 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                                 <tr>
                                     <th className="px-6 py-4 w-16 text-center bg-blue-100/50 border-r border-blue-100">#</th>
                                     <th className="px-6 py-4 border-r border-blue-100">{t('common.main_category')}</th>
-                                    <th className="px-6 py-4">Subkategoriya</th>
+                                    <th className="px-6 py-4 border-r border-blue-100">Subkategoriya</th>
+                                    <th className="px-6 py-4 w-32 text-center">Xarakteristikalar</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -221,14 +222,17 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                                         <td className="px-6 py-4 font-medium text-gray-900 border-r border-gray-100">
                                             {sub.parentName}
                                         </td>
-                                        <td className="px-6 py-4 text-blue-600 font-medium">
+                                        <td className="px-6 py-4 text-blue-600 font-medium border-r border-gray-100">
                                             {getCategoryName(sub)}
+                                        </td>
+                                        <td className="px-6 py-4 text-center font-bold text-gray-700">
+                                            {sub.characteristic_count || 0}
                                         </td>
                                     </tr>
                                 ))}
                                 {allSubcategories.length === 0 && (
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-12 text-center text-gray-400">
+                                        <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
                                             No categories found.
                                         </td>
                                     </tr>
@@ -241,18 +245,21 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                     <div className="flex flex-col h-full">
                         {/* Custom Header similar to image: "Subkategoriya --> Category (Sub)" */}
                         <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                Subkategoriya <span className="text-gray-400">--&gt;</span>
-                                <span className="text-blue-600">
-                                    {subCategories.find(s => s.id === selectedSubId) ? getCategoryName(subCategories.find(s => s.id === selectedSubId)!) : ''}
-                                    {/* Include Parent in title if desired, but user image showed just the subcategory name or simple path */}
-                                </span>
-                            </h2>
-                            {/* Add Button moved here if we want strictly like image, but image had it separate? 
-                                Actually image had it in top right of table. The current 'Add' button is in Toolbar.
-                                Let's keep it in toolbar for consistency OR move it here if user insists.
-                                Image shows it aligned right of the table header.
-                            */}
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setSelectedSubId(null)}
+                                    className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500 hover:text-gray-700"
+                                    title={t('common.back') || 'Back'}
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
+                                </button>
+                                <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    Subkategoriya <span className="text-gray-400">--&gt;</span>
+                                    <span className="text-blue-600">
+                                        {subCategories.find(s => s.id === selectedSubId) ? getCategoryName(subCategories.find(s => s.id === selectedSubId)!) : ''}
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
 
                         <table className="w-full text-sm text-left">
@@ -347,7 +354,7 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                                                         className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"
                                                     >
                                                         <Copy className="w-4 h-4" />
-                                                        {t('characteristics.copy_from_existing', 'Copy from Existing')}
+                                                        {t('characteristics.copy_from_existing')}
                                                     </button>
                                                     <button
                                                         onClick={() => {
@@ -357,7 +364,7 @@ export function CharacteristicsClient({ initialCategories }: Props) {
                                                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition"
                                                     >
                                                         <Plus className="w-4 h-4" />
-                                                        {t('characteristics.create_new', 'Create New')}
+                                                        {t('characteristics.create_new')}
                                                     </button>
                                                 </div>
                                             </div>
@@ -406,9 +413,9 @@ export function CharacteristicsClient({ initialCategories }: Props) {
             <CopyCharacteristicsModal
                 isOpen={isCopyModalOpen}
                 onClose={() => setIsCopyModalOpen(false)}
-                targetRootId={selectedRootId!}
-                targetSubId={selectedSubId!}
-                categories={roots}
+                targetCategoryId={selectedSubId!}
+                targetCategoryName={subCategories.find(s => s.id === selectedSubId)?.name_ru || 'Subcategory'}
+                categories={roots.map(r => ({ ...r, children: [] }))} // Pass flat roots or handle relationships
                 onSuccess={() => fetchCharacteristics(selectedSubId!)}
             />
         </div>

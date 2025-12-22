@@ -298,6 +298,7 @@ export function CategoryForm({ category, allCharacteristics, linkedCharacteristi
                     isOpen={isCopyModalOpen}
                     onClose={() => setIsCopyModalOpen(false)}
                     targetCategoryId={category.id}
+                    targetCategoryName={category.name_ru}
                     categories={parents}
                     onSuccess={() => {
                         router.refresh();

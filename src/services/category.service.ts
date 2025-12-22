@@ -15,7 +15,8 @@ export class CategoryService {
         const res = await query(
             `SELECT 
                 c.*,
-                (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) as product_count 
+                (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) as product_count,
+                (SELECT COUNT(*) FROM category_characteristics cc WHERE cc.category_id = c.id) as characteristic_count
             FROM categories c 
             ORDER BY c.order_index ASC`
         );
@@ -31,7 +32,8 @@ export class CategoryService {
             categoryMap.set(c.id, {
                 ...c,
                 children: [],
-                product_count: parseInt(c.product_count as any) || 0
+                product_count: parseInt(c.product_count as any) || 0,
+                characteristic_count: parseInt(c.characteristic_count as any) || 0
             });
         });
 
