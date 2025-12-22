@@ -24,7 +24,21 @@ export default async function Home({
   const resolvedParams = await searchParams;
 
   // KEY CHANGE: Fetch Tree, not just flat list
-  const categoryTree = await CategoryService.getTree();
+  // Server-side language detection: prefer cookie `active_lang`, then query param `lang`, fallback to 'uz'
+  let lang: 'ru' | 'uz' | 'en' = 'uz';
+  try {
+    const cookieStore = await nextCookies();
+    const cookieLang = cookieStore.get('active_lang')?.value;
+    if (cookieLang && ['ru', 'uz', 'en'].includes(cookieLang)) lang = cookieLang as 'ru' | 'uz' | 'en';
+  } catch (e) {
+    // ignore
+  }
+  // allow override via query param (e.g., ?lang=en)
+  if (typeof resolvedParams.lang === 'string' && ['ru', 'uz', 'en'].includes(resolvedParams.lang)) {
+    lang = resolvedParams.lang as 'ru' | 'uz' | 'en';
+  }
+
+  const categoryTree = await CategoryService.getTree(lang);
 
   const categoryId = resolvedParams.category ? Number(resolvedParams.category) : undefined;
   const subId = resolvedParams.sub ? Number(resolvedParams.sub) : undefined;
@@ -62,26 +76,13 @@ export default async function Home({
     availability: availability,
     price_from,
     price_to,
+    lang,
   });
-
-  // Server-side language detection: prefer cookie `active_lang`, then query param `lang`, fallback to 'uz'
-  let lang = 'uz';
-  try {
-    const cookieStore = await nextCookies();
-    const cookieLang = cookieStore.get('active_lang')?.value;
-    if (cookieLang && ['ru', 'uz', 'en'].includes(cookieLang)) lang = cookieLang;
-  } catch (e) {
-    // ignore
-  }
-  // allow override via query param (e.g., ?lang=en)
-  if (typeof resolvedParams.lang === 'string' && ['ru', 'uz', 'en'].includes(resolvedParams.lang)) {
-    lang = resolvedParams.lang;
-  }
 
   // Map products to include a single `category_name` selected for the server-rendered language
   const selectedProducts = products.map((p: any) => ({
     ...p,
-    category_name: p[`category_name_${lang}`] || p.category_name_en || p.category_name_ru || p.category_name_uz || null
+    category_name: p.category_name || p[`category_name_${lang}`] || p.category_name_en || p.category_name_ru || p.category_name_uz || null
   }));
 
   // Prepare server-provided display name safely (cast to any for dynamic key)

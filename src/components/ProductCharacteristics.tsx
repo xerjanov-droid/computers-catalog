@@ -7,11 +7,8 @@ import { useEffect, useState } from "react";
 interface CharacteristicField {
     id: number;
     code: string;
-    label: {
-        uz: string;
-        ru: string;
-        en: string;
-    };
+    // API may return localized `label` as a string, or an object with language variants.
+    label: string | { uz: string; ru: string; en: string };
     inputType: string;
     isRequired: boolean;
     isSpec: boolean;
@@ -71,9 +68,11 @@ export function ProductCharacteristics({ product }: ProductCharacteristicsProps)
         return val;
     };
 
-    // Helper to get localized label
+    // Helper to get localized label (supports string or object)
     const getLabel = (field: CharacteristicField) => {
         const lang = i18n.language as 'uz' | 'ru' | 'en';
+        if (!field.label) return field.code;
+        if (typeof field.label === 'string') return field.label;
         return field.label[lang] || field.label['ru'] || field.code;
     };
 

@@ -16,6 +16,8 @@ export function CategorySlider({ categories }: CategorySliderProps) {
     const { t, i18n } = useTranslation();
 
     const getCategoryName = (cat: Category) => {
+        // Prefer server-provided `name` when available (SSR)
+        if ((cat as any).name) return (cat as any).name;
         const lang = i18n.language as 'ru' | 'uz' | 'en';
         if (lang === 'uz') return cat.name_uz || cat.name_ru;
         if (lang === 'en') return cat.name_en || cat.name_ru;

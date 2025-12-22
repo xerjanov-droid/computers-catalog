@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
 
         const sort = searchParams.get('sort') as "price_asc" | "price_desc" | "popular" | "stock" | undefined;
 
+        const cookieLang = request.cookies.get('active_lang')?.value as 'ru' | 'uz' | 'en' | undefined;
+        const lang = (searchParams.get('lang') as 'ru' | 'uz' | 'en') || cookieLang;
+
         const products = await ProductService.getAll({
             category,
             search,
@@ -35,7 +38,8 @@ export async function GET(request: NextRequest) {
             availability,
             price_from,
             price_to,
-            excludeInactive: true
+            excludeInactive: true,
+            lang
         });
 
         return NextResponse.json(products);

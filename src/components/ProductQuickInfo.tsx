@@ -7,11 +7,8 @@ import { Product } from "@/types";
 interface CharacteristicField {
     id: number;
     code: string;
-    label: {
-        uz: string;
-        ru: string;
-        en: string;
-    };
+    // label may be a localized string or an object with language variants
+    label: string | { uz: string; ru: string; en: string };
     inputType: string;
     isRequired: boolean;
     isSpec: boolean;
@@ -47,7 +44,10 @@ export function ProductQuickInfo({ fields, product, className }: ProductQuickInf
                     const value = getValue(field.code, field.inputType);
                     if (value === undefined) return null;
 
-                    const label = field.label?.[i18n.language as 'uz' | 'ru' | 'en'] || field.label?.['ru'] || field.code;
+                    let label: string;
+                    if (!field.label) label = field.code;
+                    else if (typeof field.label === 'string') label = field.label;
+                    else label = field.label[i18n.language as 'uz' | 'ru' | 'en'] || field.label['ru'] || field.code;
 
                     return (
                         <div key={field.code} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0 border-dashed">

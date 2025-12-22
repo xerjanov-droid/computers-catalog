@@ -14,6 +14,7 @@ interface ProductFilters {
     price_from?: number;
     price_to?: number;
     excludeInactive?: boolean;
+    lang?: 'ru' | 'uz' | 'en';
 }
 
 export class ProductService {
@@ -146,6 +147,8 @@ export class ProductService {
         const res = await query(sql, params);
         return res.rows.map((row: any) => ({
             ...row,
+            // Provide a single localized category_name when `lang` requested
+            category_name: filters.lang ? (row[`category_name_${filters.lang}`] || row.category_name_ru || row.category_name_en || row.category_name_uz) : undefined,
             images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : []
         }));
     }

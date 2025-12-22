@@ -2,12 +2,15 @@ import { query } from '@/lib/db';
 import { Category } from '@/types';
 
 export class CategoryService {
-    static async getAll(): Promise<Category[]> {
+    static async getAll(lang?: 'ru' | 'uz' | 'en'): Promise<Category[]> {
         const res = await query(
             `SELECT * FROM categories 
        WHERE is_active = true 
        ORDER BY order_index ASC`
         );
+        if (lang) {
+            return res.rows.map((r: any) => ({ ...r, name: r[`name_${lang}`] || r.name_ru }));
+        }
         return res.rows;
     }
 
@@ -23,18 +26,20 @@ export class CategoryService {
         return res.rows;
     }
 
-    static async getTree(): Promise<Category[]> {
+    static async getTree(lang?: 'ru' | 'uz' | 'en'): Promise<Category[]> {
         const all = await this.getAllAdmin();
         const categoryMap = new Map<number, Category>();
 
         // 1. Init map and parse counts
         all.forEach(c => {
-            categoryMap.set(c.id, {
+            const node: any = {
                 ...c,
                 children: [],
                 product_count: parseInt(c.product_count as any) || 0,
                 characteristic_count: parseInt(c.characteristic_count as any) || 0
-            });
+            };
+            if (lang) node.name = c[`name_${lang}`] || c.name_ru;
+            categoryMap.set(c.id, node);
         });
 
         const roots: Category[] = [];
@@ -65,9 +70,12 @@ export class CategoryService {
         return roots;
     }
 
-    static async getById(id: number): Promise<Category | null> {
+    static async getById(id: number, lang?: 'ru' | 'uz' | 'en'): Promise<Category | null> {
         const res = await query('SELECT * FROM categories WHERE id = $1', [id]);
-        return res.rows[0] || null;
+        const row = res.rows[0] || null;
+        if (!row) return null;
+        if (lang) return { ...row, name: row[`name_${lang}`] || row.name_ru } as Category;
+        return row;
     }
 
     static async update(id: number, data: Partial<Category>): Promise<Category> {
@@ -85,14 +93,17 @@ export class CategoryService {
         return res.rows[0];
     }
 
-    static async getCategoryCharacteristics(categoryId: number): Promise<any[]> {
+    static async getCategoryCharacteristics(categoryId: number, lang?: 'ru' | 'uz' | 'en'): Promise<any[]> {
         const res = await query(`
-            SELECT cc.*, c.name_ru as name_ru, c.key, c.type
+            SELECT cc.*, c.name_ru as name_ru, c.name_uz as name_uz, c.name_en as name_en, c.key, c.type
             FROM category_characteristics cc
             JOIN characteristics c ON cc.characteristic_id = c.id
             WHERE cc.category_id = $1
             ORDER BY cc.order_index ASC
         `, [categoryId]);
+        if (lang) {
+            return res.rows.map((r: any) => ({ ...r, name: r[`name_${lang}`] || r.name_ru }));
+        }
         return res.rows;
     }
 

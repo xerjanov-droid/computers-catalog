@@ -79,7 +79,7 @@ export class CharacteristicService {
 
     // Category Linking Methods
 
-    static async getByCategoryId(categoryId: number): Promise<any[]> {
+    static async getByCategoryId(categoryId: number, lang?: 'ru' | 'uz' | 'en'): Promise<any[]> {
         const res = await query(`
             SELECT c.*, cc.is_required, cc.show_in_key_specs, cc.order_index as link_order
             FROM characteristics c
@@ -90,11 +90,17 @@ export class CharacteristicService {
 
         const chars = res.rows;
 
-        // Populate options for select types
+        // Populate options for select types and localize labels
         for (const char of chars) {
             if (char.type === 'select') {
                 const options = await query('SELECT * FROM characteristic_options WHERE characteristic_id = $1 ORDER BY order_index ASC', [char.id]);
-                char.options = options.rows;
+                char.options = options.rows.map((o: any) => ({
+                    ...o,
+                    label: lang ? (o[`label_${lang}`] || o.label_ru) : undefined
+                }));
+            }
+            if (lang) {
+                char.name = char[`name_${lang}`] || char.name_ru;
             }
         }
 
