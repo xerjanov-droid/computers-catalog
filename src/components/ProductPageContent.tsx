@@ -62,8 +62,9 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
     return (
         <main className="min-h-screen bg-white pb-32">
             {/* Header */}
+            {/* Resolve localized title for header and alt text */}
             <ProductHeader
-                title={product.title_ru}
+                title={(product as any).title || (product as any)[`title_${i18n.language}`] || product.title_ru}
                 brand={product.brand}
                 model={product.model}
                 status={product.status}
@@ -74,7 +75,7 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                 {product.images && product.images.length > 0 ? (
                     product.images.map((img, idx) => (
                         <div key={idx} className="min-w-full h-full snap-center flex items-center justify-center p-6">
-                            <img src={img.image_url} alt={product.title_ru} className="h-full w-auto object-contain mix-blend-multiply" />
+                            <img src={img.image_url} alt={(product as any).title || (product as any)[`title_${i18n.language}`] || product.title_ru} className="h-full w-auto object-contain mix-blend-multiply" />
                         </div>
                     ))
                 ) : (

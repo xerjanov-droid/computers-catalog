@@ -149,11 +149,13 @@ export class ProductService {
             ...row,
             // Provide a single localized category_name when `lang` requested
             category_name: filters.lang ? (row[`category_name_${filters.lang}`] || row.category_name_ru || row.category_name_en || row.category_name_uz) : undefined,
+            // Provide a single localized title when `lang` requested
+            title: filters.lang ? (row[`title_${filters.lang}`] || row.title_ru || row.title_en || row.title_uz) : undefined,
             images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : []
         }));
     }
 
-    static async getById(id: number): Promise<Product | null> {
+    static async getById(id: number, lang?: 'ru' | 'uz' | 'en'): Promise<Product | null> {
         // Get product and related data with strict hierarchy
         const pRes = await query(`
           SELECT p.*, 
@@ -173,6 +175,8 @@ export class ProductService {
         if (pRes.rows.length === 0) return null;
 
         const product = pRes.rows[0];
+        // If caller provided a language, they may want a unified `title` field.
+        // We don't have access to a passed `lang` here unless we add a parameter — add optional lang param.
 
         // Fetch images
         const imgRes = await query('SELECT id, image_url, is_cover FROM products_images WHERE product_id = $1 ORDER BY order_index, id', [id]);
@@ -184,6 +188,12 @@ export class ProductService {
         // Increment views (fire and forget)
         query('UPDATE products SET views = COALESCE(views, 0) + 1 WHERE id = $1', [id])
             .catch(err => console.error('View increment error', err));
+
+        if (lang) {
+            product.title = product[`title_${lang}`] || product.title_ru || product.title_en || product.title_uz;
+            // Provide localized category_name as well
+            product.category_name = product[`category_name_${lang}`] || product.category_name_en || product.category_name_ru || product.category_name_uz;
+        }
 
         return product;
     }

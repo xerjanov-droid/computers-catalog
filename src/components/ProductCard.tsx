@@ -4,7 +4,7 @@ import { Product } from '@/types';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ProductCharacteristics } from './ProductCharacteristics';
-// import { useTranslation } from 'react-i18next'; // Not needed if AvailabilityBadge handles it, but ProductCard is client anyway
+import { useTranslation } from 'react-i18next';
 import { AvailabilityBadge } from './AvailabilityBadge';
 
 interface ProductCardProps {
@@ -12,7 +12,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-    // const { t } = useTranslation(); // encapsulation
+    const { i18n } = useTranslation();
+
+    // Resolve localized title: prefer server-provided `title`, then language-specific fields, then fallback to `title_ru`.
+    const lang = (i18n.language || 'ru') as 'ru' | 'uz' | 'en';
+    const title = (product as any).title || (product as any)[`title_${lang}`] || product.title_ru;
 
     return (
         <Link href={`/product/${product.id}`} className="block h-full">
@@ -25,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Image */}
                 <div className="aspect-square w-full rounded-lg bg-white p-4 flex items-center justify-center mb-3">
                     {product.images && product.images[0] ? (
-                        <img src={product.images[0].image_url} alt={product.title_ru} className="w-full h-full object-contain" />
+                        <img src={product.images[0].image_url} alt={title} className="w-full h-full object-contain" />
                     ) : (
                         <div className="text-4xl text-gray-300">🖼️</div>
                     )}
@@ -35,7 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <div className="flex-1 flex flex-col pt-2">
                     <p className="text-xs font-medium text-gray-500 mb-1">{product.brand}</p>
                     <h3 className="text-[15px] font-bold leading-snug line-clamp-2 mb-2 flex-1 text-[var(--tg-theme-text-color)]">
-                        {product.title_ru}
+                        {title}
                     </h3>
 
                     {/* Dynamic Characteristics */}
