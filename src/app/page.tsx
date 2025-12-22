@@ -1,4 +1,5 @@
 import { CategoryService } from '@/services/category.service';
+import { cookies as nextCookies } from 'next/headers';
 import { ProductService } from '@/services/product.service';
 import { SearchBar } from '@/components/SearchBar';
 import { CategorySlider } from '@/components/CategorySlider';
@@ -63,6 +64,29 @@ export default async function Home({
     price_to,
   });
 
+  // Server-side language detection: prefer cookie `active_lang`, then query param `lang`, fallback to 'uz'
+  let lang = 'uz';
+  try {
+    const cookieStore = await nextCookies();
+    const cookieLang = cookieStore.get('active_lang')?.value;
+    if (cookieLang && ['ru', 'uz', 'en'].includes(cookieLang)) lang = cookieLang;
+  } catch (e) {
+    // ignore
+  }
+  // allow override via query param (e.g., ?lang=en)
+  if (typeof resolvedParams.lang === 'string' && ['ru', 'uz', 'en'].includes(resolvedParams.lang)) {
+    lang = resolvedParams.lang;
+  }
+
+  // Map products to include a single `category_name` selected for the server-rendered language
+  const selectedProducts = products.map((p: any) => ({
+    ...p,
+    category_name: p[`category_name_${lang}`] || p.category_name_en || p.category_name_ru || p.category_name_uz || null
+  }));
+
+  // Prepare server-provided display name safely (cast to any for dynamic key)
+  const serverDisplayName = ((subId ? subCategories.find(s => s.id === subId) : activeRoot) as any)?.[`name_${lang}`];
+
   // Hydration fix handled by wrapper now
 
   return (
@@ -87,14 +111,16 @@ export default async function Home({
             <h2 className="text-xl font-extrabold text-[#111827]">
               <CurrentCategoryTitle
                 category={subId ? subCategories.find(s => s.id === subId) : activeRoot}
+                // server-provided display name in the selected language
+                displayName={serverDisplayName}
               />
             </h2>
-            {/* Pass inferred category slug. Logic: Use english name lowercased, fallback to printers if needed for testing */}
-            <FilterWrapper categorySlug={activeRoot?.name_en.toLowerCase()} />
+            {/* Pass category slug (language-independent) so filters work for SSR */}
+            <FilterWrapper categorySlug={activeRoot?.slug} />
           </section>
 
           <section className="px-4 grid grid-cols-2 gap-3">
-            {products.map((product) => (
+            {selectedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
             {products.length === 0 && (

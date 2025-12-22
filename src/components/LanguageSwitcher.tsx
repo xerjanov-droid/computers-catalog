@@ -13,6 +13,10 @@ export function LanguageSwitcher() {
         } catch (e) {
             // ignore localStorage errors in restricted environments
         }
+        try {
+            // also set a cookie so server-side rendering can read the selected language
+            document.cookie = `active_lang=${lng}; path=/; max-age=${60 * 60 * 24 * 365}`;
+        } catch (e) {}
         i18n.changeLanguage(lng);
     };
 

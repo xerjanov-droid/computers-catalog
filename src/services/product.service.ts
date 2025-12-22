@@ -22,9 +22,12 @@ export class ProductService {
         // c1 = direct category of product
         // c2 = parent of c1 (if exists)
         let sql = `
-      SELECT p.*, 
-             COALESCE(c2.name_en, c1.name_en) as category_name,
-             COALESCE(c2.slug, c1.slug) as category_slug,
+          SELECT p.*, 
+              -- Provide category names in all supported languages so callers (SSR/API) can pick appropriate one
+              COALESCE(c2.name_en, c1.name_en) as category_name_en,
+              COALESCE(c2.name_ru, c1.name_ru) as category_name_ru,
+              COALESCE(c2.name_uz, c1.name_uz) as category_name_uz,
+              COALESCE(c2.slug, c1.slug) as category_slug,
              CASE WHEN c2.id IS NOT NULL THEN c1.slug ELSE NULL END as subcategory_slug,
              (SELECT image_url FROM products_images WHERE product_id = p.id AND is_cover = TRUE LIMIT 1) as main_image
       FROM products p
@@ -150,9 +153,11 @@ export class ProductService {
     static async getById(id: number): Promise<Product | null> {
         // Get product and related data with strict hierarchy
         const pRes = await query(`
-      SELECT p.*, 
-             COALESCE(c2.name_ru, c1.name_ru) as category_name_ru,
-             COALESCE(c2.slug, c1.slug) as category_slug,
+          SELECT p.*, 
+              COALESCE(c2.name_en, c1.name_en) as category_name_en,
+              COALESCE(c2.name_ru, c1.name_ru) as category_name_ru,
+              COALESCE(c2.name_uz, c1.name_uz) as category_name_uz,
+              COALESCE(c2.slug, c1.slug) as category_slug,
              CASE WHEN c2.id IS NOT NULL THEN c1.slug ELSE NULL END as subcategory_slug,
              CASE WHEN c1.parent_id IS NOT NULL THEN c1.parent_id ELSE c1.id END as main_category_id,
              CASE WHEN c1.parent_id IS NOT NULL THEN c1.id ELSE NULL END as sub_category_id
