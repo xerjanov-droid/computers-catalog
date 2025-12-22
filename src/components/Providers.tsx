@@ -10,12 +10,24 @@ import { useEffect } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     useEffect(() => {
-        // Detect Telegram language
-        if (typeof window !== 'undefined') {
-            const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
-            if (tgLang && ['ru', 'en', 'uz'].includes(tgLang)) {
-                i18n.changeLanguage(tgLang);
+        if (typeof window === 'undefined') return;
+
+        // 1) If user previously selected a language, restore it from shared storage
+        try {
+            const stored = localStorage.getItem('active_lang');
+            if (stored && ['ru', 'en', 'uz'].includes(stored)) {
+                i18n.changeLanguage(stored);
+                return;
             }
+        } catch (e) {
+            // ignore localStorage errors
+        }
+
+        // 2) Fallback to Telegram-detected language if available
+        const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+        if (tgLang && ['ru', 'en', 'uz'].includes(tgLang)) {
+            try { localStorage.setItem('active_lang', tgLang); } catch {}
+            i18n.changeLanguage(tgLang);
         }
     }, []);
 

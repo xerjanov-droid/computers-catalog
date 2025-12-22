@@ -37,7 +37,7 @@ export async function DELETE(
                 [image.product_id]
             );
 
-            if (nextImageRes.rowCount > 0) {
+            if ((nextImageRes?.rowCount ?? 0) > 0) {
                 await query('UPDATE products_images SET is_cover = TRUE WHERE id = $1', [nextImageRes.rows[0].id]);
                 logger.info('New cover set automatically', { productId: image.product_id, newCoverId: nextImageRes.rows[0].id, user: 'admin' });
             }

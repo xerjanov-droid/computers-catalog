@@ -33,7 +33,7 @@ export default async function EditCharacteristicPage({ params }: Props) {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
                 <h1 className="text-2xl font-bold mb-6">Edit Characteristic: {characteristic.name_ru}</h1>
-                <CharacteristicForm initialData={characteristic} />
+                <CharacteristicForm initialData={characteristic} onClose={() => {}} onSuccess={() => {}} />
             </div>
         </div>
     );

@@ -13,7 +13,7 @@ export default function NewCharacteristicPage() {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
                 <h1 className="text-2xl font-bold mb-6">Create Characteristic</h1>
-                <CharacteristicForm />
+                <CharacteristicForm initialData={null} onClose={() => {}} onSuccess={() => {}} />
             </div>
         </div>
     );

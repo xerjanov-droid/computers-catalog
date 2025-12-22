@@ -7,6 +7,12 @@ export function LanguageSwitcher() {
     const { i18n } = useTranslation();
 
     const changeLanguage = (lng: string) => {
+        // persist shared active language so all parts of the app can read it
+        try {
+            localStorage.setItem('active_lang', lng);
+        } catch (e) {
+            // ignore localStorage errors in restricted environments
+        }
         i18n.changeLanguage(lng);
     };
 

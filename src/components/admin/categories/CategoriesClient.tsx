@@ -28,7 +28,8 @@ export function CategoriesClient({ initialCategories }: Props) {
     };
 
     const getCategoryName = (node: Category) => {
-        return node[`name_${language}` as keyof Category] || node.name_ru || node.name_uz || node.name_en || node.name;
+        // Prefer language-specific field, then fallbacks
+        return (node as any)[`name_${language}`] || node.name_ru || node.name_uz || node.name_en || '';
     };
 
     // Filter Logic with Auto-Expand

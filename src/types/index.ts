@@ -24,6 +24,7 @@ export interface Product {
     title_en?: string;
     price: number;
     currency: string;
+    technology?: string;
     // Status is now stricter, but still a string in DB/Join
     status: 'in_stock' | 'pre_order' | 'showroom' | 'archived';
     image_url?: string;

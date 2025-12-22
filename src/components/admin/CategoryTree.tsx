@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -63,7 +64,7 @@ export function CategoryTree({ categories }: CategoryTreeProps) {
     }, [categories]);
 
     // Recursive Renderer
-    const renderNode = (node: TreeNode) => {
+    const renderNode = (node: TreeNode): React.ReactElement => {
         const hasChildren = node.children.length > 0;
         const isExpanded = expanded[node.id];
         const isLoading = loadingId === node.id;
@@ -73,7 +74,7 @@ export function CategoryTree({ categories }: CategoryTreeProps) {
         const paddingLeft = `${node.level * 24 + 12}px`;
 
         const langKey = `name_${language}` as keyof Category;
-        const displayName = node[langKey] || node.name_ru || node.name_en || 'No Name';
+        const displayName = (node as any)[langKey] || node.name_ru || node.name_en || 'No Name';
 
         return (
             <>

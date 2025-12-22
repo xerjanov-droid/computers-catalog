@@ -23,9 +23,12 @@ i18n
             escapeValue: false,
         },
         detection: {
-            order: ['telegram', 'localStorage', 'navigator'],
-            caches: ['localStorage'],
-        }
+                // Use a single shared localStorage key so the whole UI uses the same selected language
+                order: ['telegram', 'localStorage', 'navigator'],
+                caches: ['localStorage'],
+                // store & read language under this key so admin and public app can share it
+                lookupLocalStorage: 'active_lang',
+            }
     });
 
 export default i18n;

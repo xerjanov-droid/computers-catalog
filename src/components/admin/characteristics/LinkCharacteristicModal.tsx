@@ -82,8 +82,10 @@ export function LinkCharacteristicModal({ categoryId, existingIds, onClose, onSu
 
     // Filter by search
     const filtered = characteristics.filter(c => {
-        const name = c[`name_${language}` as keyof Characteristic] || c.name_ru || '';
-        return name.toLowerCase().includes(search.toLowerCase()) || c.key.toLowerCase().includes(search.toLowerCase());
+        const name = String((c as any)[`name_${language}`] || c.name_ru || '');
+        const key = String(c.key || '');
+        const term = search.toLowerCase();
+        return name.toLowerCase().includes(term) || key.toLowerCase().includes(term);
     });
 
     return (
@@ -130,7 +132,7 @@ export function LinkCharacteristicModal({ categoryId, existingIds, onClose, onSu
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-sm font-medium text-gray-900">
-                                        {char[`name_${language}` as keyof Characteristic] || char.name_ru}
+                                        {(char as any)[`name_${language}`] || char.name_ru}
                                     </div>
                                     <div className="text-xs text-gray-500 font-mono">
                                         {char.key}

@@ -15,7 +15,7 @@ const pool = new Pool({
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
-const query = (text, params) => pool.query(text, params);
+const query = (text: string, params?: any[]) => pool.query(text, params);
 
 const CHARACTERISTICS_TO_ADD = [
     { key: 'cpu', name_uz: 'Protsessor', name_ru: 'Процессор', name_en: 'Processor', type: 'text' },

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { defaultStats } from '@/lib/utils'; // Assumption: logic to fill empty data
+// import { defaultStats } from '@/lib/utils'; // Not used — removed to fix build
 
 export async function GET() {
     try {
