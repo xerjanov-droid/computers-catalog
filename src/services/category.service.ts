@@ -1,17 +1,23 @@
 import { query } from '@/lib/db';
 import { Category } from '@/types';
+import { resolveLang, Lang } from './locale.service';
 
 export class CategoryService {
-    static async getAll(lang?: 'ru' | 'uz' | 'en'): Promise<Category[]> {
+    static async getAll(lang?: Lang): Promise<any[]> {
         const res = await query(
             `SELECT * FROM categories 
        WHERE is_active = true 
        ORDER BY order_index ASC`
         );
-        if (lang) {
-            return res.rows.map((r: any) => ({ ...r, name: r[`name_${lang}`] || r.name_ru }));
-        }
-        return res.rows;
+        const resolvedLang = resolveLang(lang);
+        return res.rows.map((r: any) => ({
+            id: r.id,
+            name: r[`name_${resolvedLang}`] || r.name_ru,
+            icon: r.icon,
+            order_index: r.order_index,
+            is_active: r.is_active,
+            parent_id: r.parent_id
+        }));
     }
 
     static async getAllAdmin(): Promise<Category[]> {
@@ -31,14 +37,19 @@ export class CategoryService {
         const categoryMap = new Map<number, Category>();
 
         // 1. Init map and parse counts
+        const resolvedLang = resolveLang(lang);
         all.forEach(c => {
             const node: any = {
-                ...c,
+                id: c.id,
+                parent_id: c.parent_id,
+                name: c[`name_${resolvedLang}`] || c.name_ru,
+                icon: c.icon,
+                order_index: c.order_index,
+                is_active: c.is_active,
                 children: [],
                 product_count: parseInt(c.product_count as any) || 0,
                 characteristic_count: parseInt(c.characteristic_count as any) || 0
             };
-            if (lang) node.name = c[`name_${lang}`] || c.name_ru;
             categoryMap.set(c.id, node);
         });
 
@@ -74,8 +85,15 @@ export class CategoryService {
         const res = await query('SELECT * FROM categories WHERE id = $1', [id]);
         const row = res.rows[0] || null;
         if (!row) return null;
-        if (lang) return { ...row, name: row[`name_${lang}`] || row.name_ru } as Category;
-        return row;
+        const resolvedLang = resolveLang(lang);
+        return {
+            id: row.id,
+            name: row[`name_${resolvedLang}`] || row.name_ru,
+            icon: row.icon,
+            order_index: row.order_index,
+            is_active: row.is_active,
+            parent_id: row.parent_id
+        } as Category;
     }
 
     static async update(id: number, data: Partial<Category>): Promise<Category> {
@@ -95,16 +113,21 @@ export class CategoryService {
 
     static async getCategoryCharacteristics(categoryId: number, lang?: 'ru' | 'uz' | 'en'): Promise<any[]> {
         const res = await query(`
-            SELECT cc.*, c.name_ru as name_ru, c.name_uz as name_uz, c.name_en as name_en, c.key, c.type
+            SELECT cc.*, c.id as characteristic_id, c.key, c.name_ru, c.name_uz, c.name_en, c.type, cc.is_required, cc.show_in_key_specs, cc.order_index
             FROM category_characteristics cc
             JOIN characteristics c ON cc.characteristic_id = c.id
             WHERE cc.category_id = $1
             ORDER BY cc.order_index ASC
         `, [categoryId]);
-        if (lang) {
-            return res.rows.map((r: any) => ({ ...r, name: r[`name_${lang}`] || r.name_ru }));
-        }
-        return res.rows;
+        const resolvedLang = resolveLang(lang);
+        return res.rows.map((r: any) => ({
+            characteristic_id: r.characteristic_id,
+            id: r.characteristic_id,
+            name: r[`name_${resolvedLang}`] || r.name_ru,
+            is_required: r.is_required,
+            show_in_key_specs: r.show_in_key_specs,
+            order_index: r.order_index
+        }));
     }
 
     static async updateCategoryCharacteristics(

@@ -5,9 +5,9 @@ import { cookies } from 'next/headers';
 export async function GET() {
     try {
         const cookieStore = await cookies();
-        const lang = (cookieStore.get('active_lang')?.value as 'ru' | 'uz' | 'en') || 'uz';
+        // Use cookie as single source of truth for language (do not default here)
+        const lang = cookieStore.get('active_lang')?.value as 'ru' | 'uz' | 'en' | undefined;
         const categories = await CategoryService.getAll(lang);
-        // Return categories with a unified `name` field for client convenience
         return NextResponse.json(categories);
     } catch (error) {
         console.error('API Error:', error);

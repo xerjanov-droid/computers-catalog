@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
 import { Product } from '@/types';
+import { resolveLang, Lang } from './locale.service';
 
 interface ProductFilters {
     category?: number;
@@ -145,13 +146,18 @@ export class ProductService {
         }
 
         const res = await query(sql, params);
+        const resolvedLang = resolveLang(filters.lang as Lang | undefined);
         return res.rows.map((row: any) => ({
-            ...row,
-            // Provide a single localized category_name when `lang` requested
-            category_name: filters.lang ? (row[`category_name_${filters.lang}`] || row.category_name_ru || row.category_name_en || row.category_name_uz) : undefined,
-            // Provide a single localized title when `lang` requested
-            title: filters.lang ? (row[`title_${filters.lang}`] || row.title_ru || row.title_en || row.title_uz) : undefined,
-            images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : []
+            id: row.id,
+            category_id: row.category_id,
+            category_name: row[`category_name_${resolvedLang}`] || row.category_name_ru || row.category_name_en || row.category_name_uz,
+            title: row[`title_${resolvedLang}`] || row.title_ru || row.title_en || row.title_uz,
+            brand: row.brand,
+            price: row.price,
+            currency: row.currency,
+            status: row.status,
+            images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : [],
+            specs: row.specs
         }));
     }
 
@@ -189,13 +195,23 @@ export class ProductService {
         query('UPDATE products SET views = COALESCE(views, 0) + 1 WHERE id = $1', [id])
             .catch(err => console.error('View increment error', err));
 
-        if (lang) {
-            product.title = product[`title_${lang}`] || product.title_ru || product.title_en || product.title_uz;
-            // Provide localized category_name as well
-            product.category_name = product[`category_name_${lang}`] || product.category_name_en || product.category_name_ru || product.category_name_uz;
-        }
+        const resolvedLang = resolveLang(lang as Lang | undefined);
+        product.title = product[`title_${resolvedLang}`] || product.title_ru || product.title_en || product.title_uz;
+        product.category_name = product[`category_name_${resolvedLang}`] || product.category_name_en || product.category_name_ru || product.category_name_uz;
 
-        return product;
+        return {
+            id: product.id,
+            title: product.title,
+            category_id: product.category_id,
+            category_name: product.category_name,
+            brand: product.brand,
+            price: product.price,
+            currency: product.currency,
+            status: product.status,
+            images: product.images,
+            files: product.files,
+            specs: product.specs
+        } as Product;
     }
     static async update(id: number, data: Partial<Product>): Promise<Product> {
         const fields: string[] = [];

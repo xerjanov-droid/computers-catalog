@@ -1,6 +1,7 @@
 
 import { query } from '@/lib/db';
 import { Characteristic } from '@/types';
+import { resolveLang, Lang } from './locale.service';
 
 export class CharacteristicService {
     static async getAll(): Promise<Characteristic[]> {
@@ -79,7 +80,7 @@ export class CharacteristicService {
 
     // Category Linking Methods
 
-    static async getByCategoryId(categoryId: number, lang?: 'ru' | 'uz' | 'en'): Promise<any[]> {
+    static async getByCategoryId(categoryId: number, lang?: Lang): Promise<any[]> {
         const res = await query(`
             SELECT c.*, cc.is_required, cc.show_in_key_specs, cc.order_index as link_order
             FROM characteristics c
@@ -89,22 +90,32 @@ export class CharacteristicService {
         `, [categoryId]);
 
         const chars = res.rows;
+        const resolvedLang = resolveLang(lang);
 
         // Populate options for select types and localize labels
         for (const char of chars) {
             if (char.type === 'select') {
-                const options = await query('SELECT * FROM characteristic_options WHERE characteristic_id = $1 ORDER BY order_index ASC', [char.id]);
+                const options = await query('SELECT id, value, label_ru, label_uz, label_en, order_index FROM characteristic_options WHERE characteristic_id = $1 ORDER BY order_index ASC', [char.id]);
                 char.options = options.rows.map((o: any) => ({
-                    ...o,
-                    label: lang ? (o[`label_${lang}`] || o.label_ru) : undefined
+                    id: o.id,
+                    value: o.value,
+                    label: o[`label_${resolvedLang}`] || o.label_ru,
+                    order_index: o.order_index
                 }));
             }
-            if (lang) {
-                char.name = char[`name_${lang}`] || char.name_ru;
-            }
+            char.name = char[`name_${resolvedLang}`] || char.name_ru;
         }
 
-        return chars;
+        return chars.map((c: any) => ({
+            id: c.id,
+            code: c.key,
+            label: c.name,
+            inputType: c.type || 'text',
+            isRequired: c.is_required,
+            isSpec: c.show_in_key_specs,
+            order: c.link_order,
+            options: c.options
+        }));
     }
 
     static async assignToCategory(categoryId: number, characteristicId: number, config: { is_required?: boolean, show_in_key_specs?: boolean, order_index?: number }): Promise<void> {
