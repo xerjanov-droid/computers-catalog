@@ -168,5 +168,13 @@
     "sub_category": "Ost-kategoriya",
     "status": "Holat",
     "save": "Saqlash",
-    "saving": "Saqlanmoqda..."
+    "saving": "Saqlanmoqda...",
+    "sort": {
+        "popular": "Ommabop",
+        "newest": "Yangi",
+        "price_low_to_high": "Narx: pastdan yuqoriga",
+        "price_high_to_low": "Narx: yuqoridan pastga",
+        "in_stock_first": "Mavjud birinchi",
+        "name_a_z": "Alfavit bo'yicha"
+    }
 }

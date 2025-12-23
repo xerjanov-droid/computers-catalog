@@ -56,6 +56,27 @@
     "product": {
         "model": "Model"
     },
+    "product_form": {
+        "product_details": "Mahsulot ma'lumotlari",
+        "product_images": "Mahsulot rasmlari",
+        "brand": "Brend",
+        "sku": "SKU",
+        "localized_titles": "Tarjimalar",
+        "title_ru": "Nomi (RU)",
+        "title_uz": "Nomi (UZ)",
+        "title_en": "Nomi (EN)",
+        "pricing": "Narx",
+        "currency": "Valyuta",
+        "features": "Xususiyatlar",
+        "category": "Kategoriya",
+        "main_category": "Asosiy kategoriya",
+        "sub_category": "Subkategoriya",
+        "technical_specs": "Texnik xususiyatlar",
+        "fields": "maydon",
+        "product_status": "Mahsulot holati",
+        "save_product": "Mahsulotni saqlash",
+        "save_first": "Rasm yuklash uchun avval mahsulotni saqlang"
+    },
     "filters": {
         "all_categories": "Barcha kategoriyalar",
         "all_subcategories": "Barcha subkategoriyalar",

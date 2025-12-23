@@ -53,6 +53,27 @@
     "product": {
         "model": "Модель"
     },
+    "product_form": {
+        "product_details": "Детали товара",
+        "product_images": "Изображения товара",
+        "brand": "Бренд",
+        "sku": "SKU",
+        "localized_titles": "Локализованные названия",
+        "title_ru": "Название (RU)",
+        "title_uz": "Название (UZ)",
+        "title_en": "Название (EN)",
+        "pricing": "Цена",
+        "currency": "Валюта",
+        "features": "Особенности",
+        "category": "Категория",
+        "main_category": "Основная категория",
+        "sub_category": "Подкатегория",
+        "technical_specs": "Технические характеристики",
+        "fields": "полей",
+        "product_status": "Статус товара",
+        "save_product": "Сохранить товар",
+        "save_first": "Сначала сохраните товар, чтобы загрузить изображения"
+    },
     "filters": {
         "all_categories": "Все категории",
         "all_subcategories": "Все подкатегории",

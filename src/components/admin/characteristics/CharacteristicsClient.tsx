@@ -24,9 +24,16 @@ export function CharacteristicsClient({ initialCategories }: Props) {
     const { t, language } = useAdminLanguage();
 
     const getCategoryName = useAdminCategoryName();
-    const getCharName = (c: Characteristic): string => {
+    const getCharName = (c: any): string => {
         if (!c) return '';
-        return (c[`name_${language}` as keyof Characteristic] as string) || c.name_ru || c.key || 'Unnamed';
+        // API returns 'label' field for localized name, or we can use name_* fields if available
+        if (c.label) return c.label;
+        if (c[`name_${language}` as keyof typeof c]) return c[`name_${language}` as string];
+        if (c.name_ru) return c.name_ru;
+        if (c.name_uz) return c.name_uz;
+        if (c.name_en) return c.name_en;
+        if (c.key) return c.key;
+        return 'Unnamed';
     };
 
     // Selection State

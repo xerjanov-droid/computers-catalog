@@ -10,7 +10,7 @@ interface ProductFilters {
     color?: string[];
     wifi?: boolean;
     format?: string;
-    sort?: 'price_asc' | 'price_desc' | 'popular' | 'stock';
+    sort?: 'price_asc' | 'price_desc' | 'popular' | 'stock' | 'newest' | 'name_asc';
     availability?: string[];
     price_from?: number;
     price_to?: number;
@@ -135,29 +135,67 @@ export class ProductService {
 
         // Sort
         if (filters.sort === 'price_asc') {
-            sql += ` ORDER BY p.price ASC`;
+            sql += ` ORDER BY p.price ASC, p.id DESC`;
         } else if (filters.sort === 'price_desc') {
-            sql += ` ORDER BY p.price DESC`;
+            sql += ` ORDER BY p.price DESC, p.id DESC`;
         } else if (filters.sort === 'stock') {
             sql += ` ORDER BY CASE WHEN p.status = 'in_stock' THEN 1 ELSE 2 END ASC, p.id DESC`;
-            // ... existing sort logic
+        } else if (filters.sort === 'popular') {
+            sql += ` ORDER BY p.views DESC, p.id DESC`;
+        } else if (filters.sort === 'newest') {
+            sql += ` ORDER BY p.created_at DESC, p.id DESC`;
+        } else if (filters.sort === 'name_asc') {
+            sql += ` ORDER BY p.title_ru ASC, p.id DESC`;
         } else {
-            sql += ` ORDER BY p.id DESC`;
+            // Default: popular (by views)
+            sql += ` ORDER BY p.views DESC, p.id DESC`;
         }
 
         const res = await query(sql, params);
         const resolvedLang = resolveLang(filters.lang as Lang | undefined);
+        
+        // Fetch images for all products in one query
+        const productIds = res.rows.map((r: any) => r.id);
+        let imagesMap: { [key: number]: any[] } = {};
+        
+        if (productIds.length > 0) {
+            const imagesRes = await query(`
+                SELECT product_id, id, image_url, is_cover 
+                FROM products_images 
+                WHERE product_id = ANY($1::int[])
+                ORDER BY product_id, is_cover DESC, order_index, id
+            `, [productIds]);
+            
+            imagesRes.rows.forEach((img: any) => {
+                if (!imagesMap[img.product_id]) {
+                    imagesMap[img.product_id] = [];
+                }
+                imagesMap[img.product_id].push({
+                    id: img.id,
+                    image_url: img.image_url,
+                    is_cover: img.is_cover
+                });
+            });
+        }
+        
         return res.rows.map((row: any) => ({
             id: row.id,
             category_id: row.category_id,
             category_name: row[`category_name_${resolvedLang}`] || row.category_name_ru || row.category_name_en || row.category_name_uz,
             title: row[`title_${resolvedLang}`] || row.title_ru || row.title_en || row.title_uz,
+            title_ru: row.title_ru,
+            title_uz: row.title_uz,
+            title_en: row.title_en,
             brand: row.brand,
+            model: row.model,
+            sku: row.sku,
             price: row.price,
             currency: row.currency,
             status: row.status,
-            images: row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : [],
-            specs: row.specs
+            image_url: row.main_image || undefined,
+            images: imagesMap[row.id] || (row.main_image ? [{ id: 0, image_url: row.main_image, is_cover: true }] : []),
+            specs: row.specs,
+            is_price_visible: row.is_price_visible
         }));
     }
 
@@ -202,15 +240,27 @@ export class ProductService {
         return {
             id: product.id,
             title: product.title,
+            title_ru: product.title_ru,
+            title_uz: product.title_uz,
+            title_en: product.title_en,
             category_id: product.category_id,
             category_name: product.category_name,
             brand: product.brand,
+            model: product.model,
+            sku: product.sku,
             price: product.price,
             currency: product.currency,
             status: product.status,
+            technology: product.technology,
+            wifi: product.wifi,
+            duplex: product.duplex,
+            color_print: product.color_print,
+            is_price_visible: product.is_price_visible,
             images: product.images,
             files: product.files,
-            specs: product.specs
+            specs: product.specs,
+            main_category_id: product.main_category_id,
+            sub_category_id: product.sub_category_id
         } as Product;
     }
     static async update(id: number, data: Partial<Product>): Promise<Product> {

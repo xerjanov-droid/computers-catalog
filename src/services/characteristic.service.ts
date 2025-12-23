@@ -108,12 +108,22 @@ export class CharacteristicService {
 
         return chars.map((c: any) => ({
             id: c.id,
+            key: c.key,
             code: c.key,
             label: c.name,
+            name: c.name,
+            name_ru: c.name_ru,
+            name_uz: c.name_uz,
+            name_en: c.name_en,
+            type: c.type || 'text',
             inputType: c.type || 'text',
             isRequired: c.is_required,
+            is_required: c.is_required,
             isSpec: c.show_in_key_specs,
+            show_in_key_specs: c.show_in_key_specs,
             order: c.link_order,
+            link_order: c.link_order,
+            is_filterable: c.is_filterable,
             options: c.options
         }));
     }

@@ -13,6 +13,7 @@ export const dynamic = 'force-dynamic';
 
 import { SubCategoryList } from '@/components/SubCategoryList';
 import { CurrentCategoryTitle } from '@/components/CurrentCategoryTitle';
+import { SortSelector } from '@/components/SortSelector';
 
 // ... imports
 
@@ -62,6 +63,11 @@ export default async function Home({
   // Wifi is boolean-ish 'true'
   const wifi = resolvedParams.wifi === 'true';
 
+  // Sort parameter
+  const sort = typeof resolvedParams.sort === 'string' 
+    ? resolvedParams.sort as 'popular' | 'newest' | 'price_asc' | 'price_desc' | 'stock' | 'name_asc'
+    : 'popular'; // Default to popular
+
   // Find active root to get its children
   const activeRoot = categoryId ? categoryTree.find(c => c.id === categoryId) : undefined;
   const subCategories = activeRoot?.children || [];
@@ -76,6 +82,7 @@ export default async function Home({
     availability: availability,
     price_from,
     price_to,
+    sort: sort,
     lang,
   });
 
@@ -109,16 +116,19 @@ export default async function Home({
 
 
 
-          <section className="px-5 flex justify-between items-center pt-2">
-            <h2 className="text-xl font-extrabold text-[#111827]">
+          <section className="px-5 flex justify-between items-center pt-2 gap-3">
+            <h2 className="text-xl font-extrabold text-[#111827] flex-1">
               <CurrentCategoryTitle
                 category={subId ? subCategories.find(s => s.id === subId) : activeRoot}
                 // server-provided display name in the selected language
                 displayName={serverDisplayName}
               />
             </h2>
-            {/* Pass category slug (language-independent) so filters work for SSR */}
-            <FilterWrapper categorySlug={activeRoot?.slug} />
+            <div className="flex items-center gap-2">
+              <SortSelector />
+              {/* Pass category slug (language-independent) so filters work for SSR */}
+              <FilterWrapper categorySlug={activeRoot?.slug} />
+            </div>
           </section>
 
           <section className="px-4 grid grid-cols-2 gap-3">

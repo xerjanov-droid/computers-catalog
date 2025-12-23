@@ -286,12 +286,32 @@ export function ProductsClient({ stats, categories }: Props) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0">
-                                                {/* Img placeholder */}
+                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                                                {product.images && product.images[0] ? (
+                                                    <img 
+                                                        src={product.images[0].image_url} 
+                                                        alt={product.title_ru}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : product.image_url ? (
+                                                    <img 
+                                                        src={product.image_url} 
+                                                        alt={product.title_ru}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                                                        🖼️
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div>
-                                                <div className="font-medium text-gray-900">{product.title_ru}</div>
-                                                <div className="text-xs text-gray-500">SKU: {product.id}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-medium text-gray-900 truncate" title={product.title_ru}>
+                                                    {product.title_ru || `${product.brand} ${product.model}`}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    SKU: {product.sku || product.id}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -317,7 +337,11 @@ export function ProductsClient({ stats, categories }: Props) {
                                             <button onClick={() => handleDuplicate(product.id)} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Duplicate">
                                                 <Copy className="w-4 h-4" />
                                             </button>
-                                            <Link href={`/admin/products/${product.id}`} className="p-2 text-gray-400 hover:text-blue-600 transition" title="Edit">
+                                            <Link 
+                                                href={`/admin/products/${product.id}${searchParams.toString() ? '?' + searchParams.toString() : ''}`} 
+                                                className="p-2 text-gray-400 hover:text-blue-600 transition" 
+                                                title="Edit"
+                                            >
                                                 <Edit className="w-4 h-4" />
                                             </Link>
                                         </div>

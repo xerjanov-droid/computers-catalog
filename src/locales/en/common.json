@@ -168,5 +168,13 @@
   "sub_category": "Sub Category",
   "status": "Status",
   "save": "Save",
-  "saving": "Saving..."
+  "saving": "Saving...",
+  "sort": {
+    "popular": "Popular",
+    "newest": "Newest",
+    "price_low_to_high": "Price: Low to High",
+    "price_high_to_low": "Price: High to Low",
+    "in_stock_first": "In Stock First",
+    "name_a_z": "Name A-Z"
+  }
 }

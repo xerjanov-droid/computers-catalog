@@ -53,6 +53,27 @@
     "product": {
         "model": "Model"
     },
+    "product_form": {
+        "product_details": "Product Details",
+        "product_images": "Product Images",
+        "brand": "Brand",
+        "sku": "SKU",
+        "localized_titles": "Localized Titles",
+        "title_ru": "Title (RU)",
+        "title_uz": "Title (UZ)",
+        "title_en": "Title (EN)",
+        "pricing": "Pricing",
+        "currency": "Currency",
+        "features": "Features",
+        "category": "Category",
+        "main_category": "Main Category",
+        "sub_category": "Sub Category",
+        "technical_specs": "Technical Specifications",
+        "fields": "fields",
+        "product_status": "Product Status",
+        "save_product": "Save Product",
+        "save_first": "Save the product first to upload images"
+    },
     "filters": {
         "all_categories": "All Categories",
         "all_subcategories": "All Subcategories",

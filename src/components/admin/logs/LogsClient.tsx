@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
-import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
 import { Activity, Filter, Download, RefreshCw, Search, X, Eye } from 'lucide-react';
 import { AuditLogsTable } from './AuditLogsTable';
 import { SystemLogsTable } from './SystemLogsTable';
