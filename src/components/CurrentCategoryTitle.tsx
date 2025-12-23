@@ -10,18 +10,14 @@ interface CurrentCategoryTitleProps {
 }
 
 export function CurrentCategoryTitle({ category, displayName }: CurrentCategoryTitleProps) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     if (!category) {
         return <>{t('popular')}</>;
     }
 
-    if (displayName) {
-        return <>{displayName}</>;
-    }
-
-    const lang = i18n.language as 'ru' | 'uz' | 'en';
-    const name = (category as any)[`name_${lang}`] || category.name_ru;
+    // Golden Rule: UI only uses 'name' field from server (or displayName if provided)
+    const name = displayName || category.name || '';
 
     return <>{name}</>;
 }

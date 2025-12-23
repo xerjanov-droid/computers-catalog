@@ -3,21 +3,38 @@ import { Category } from '@/types';
 import { resolveLang, Lang } from './locale.service';
 
 export class CategoryService {
-    static async getAll(lang?: Lang): Promise<any[]> {
+    static async getAll(lang?: Lang): Promise<Category[]> {
         const res = await query(
             `SELECT * FROM categories 
        WHERE is_active = true 
        ORDER BY order_index ASC`
         );
-        const resolvedLang = resolveLang(lang);
-        return res.rows.map((r: any) => ({
-            id: r.id,
-            name: r[`name_${resolvedLang}`] || r.name_ru,
-            icon: r.icon,
-            order_index: r.order_index,
-            is_active: r.is_active,
-            parent_id: r.parent_id
-        }));
+        const currentLang = resolveLang(lang);
+        return res.rows.map((r: {
+            id: number;
+            parent_id: number | null;
+            slug: string;
+            name_ru: string;
+            name_uz: string;
+            name_en: string;
+            icon?: string;
+            order_index: number;
+            is_active: boolean;
+        }): Category => {
+            const resolvedName = r[`name_${currentLang}` as keyof typeof r] as string || r.name_ru || '';
+            return {
+                id: r.id,
+                parent_id: r.parent_id,
+                slug: r.slug,
+                name: resolvedName, // Only resolved name for UI
+                name_ru: r.name_ru,
+                name_uz: r.name_uz,
+                name_en: r.name_en,
+                icon: r.icon,
+                order_index: r.order_index,
+                is_active: r.is_active
+            };
+        });
     }
 
     static async getAllAdmin(): Promise<Category[]> {
@@ -39,16 +56,23 @@ export class CategoryService {
         // 1. Init map and parse counts
         const resolvedLang = resolveLang(lang);
         all.forEach(c => {
-            const node: any = {
+            // Resolve name based on language (Golden Rule: UI only sees 'name' field)
+            const resolvedName = c[`name_${resolvedLang}` as keyof Category] as string || c.name_ru || '';
+            
+            const node: Category = {
                 id: c.id,
                 parent_id: c.parent_id,
-                name: c[`name_${resolvedLang}`] || c.name_ru,
+                slug: c.slug,
+                name: resolvedName, // Only resolved name for UI
+                name_ru: c.name_ru, // Keep for admin panel use
+                name_uz: c.name_uz,
+                name_en: c.name_en,
                 icon: c.icon,
                 order_index: c.order_index,
                 is_active: c.is_active,
                 children: [],
-                product_count: parseInt(c.product_count as any) || 0,
-                characteristic_count: parseInt(c.characteristic_count as any) || 0
+                product_count: typeof c.product_count === 'number' ? c.product_count : parseInt(String(c.product_count || '0')) || 0,
+                characteristic_count: typeof c.characteristic_count === 'number' ? c.characteristic_count : parseInt(String(c.characteristic_count || '0')) || 0
             };
             categoryMap.set(c.id, node);
         });
@@ -86,19 +110,24 @@ export class CategoryService {
         const row = res.rows[0] || null;
         if (!row) return null;
         const resolvedLang = resolveLang(lang);
+        const resolvedName = row[`name_${resolvedLang}` as keyof typeof row] as string || row.name_ru || '';
         return {
             id: row.id,
-            name: row[`name_${resolvedLang}`] || row.name_ru,
+            parent_id: row.parent_id,
+            slug: row.slug,
+            name: resolvedName, // Only resolved name for UI
+            name_ru: row.name_ru,
+            name_uz: row.name_uz,
+            name_en: row.name_en,
             icon: row.icon,
             order_index: row.order_index,
-            is_active: row.is_active,
-            parent_id: row.parent_id
+            is_active: row.is_active
         } as Category;
     }
 
     static async update(id: number, data: Partial<Category>): Promise<Category> {
         const fields = Object.keys(data).filter(k => k !== 'id' && k !== 'children' && k !== 'product_count');
-        const values = fields.map(k => (data as any)[k]);
+        const values = fields.map(k => (data as Record<string, unknown>)[k]);
 
         if (fields.length === 0) return await this.getById(id) as Category;
 

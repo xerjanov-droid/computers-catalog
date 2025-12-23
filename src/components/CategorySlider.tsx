@@ -13,16 +13,10 @@ interface CategorySliderProps {
 export function CategorySlider({ categories }: CategorySliderProps) {
     const searchParams = useSearchParams();
     const activeId = searchParams.get('category');
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
-    const getCategoryName = (cat: Category) => {
-        // Prefer server-provided `name` when available (SSR)
-        if ((cat as any).name) return (cat as any).name;
-        const lang = i18n.language as 'ru' | 'uz' | 'en';
-        if (lang === 'uz') return cat.name_uz || cat.name_ru;
-        if (lang === 'en') return cat.name_en || cat.name_ru;
-        return cat.name_ru;
-    };
+    // Golden Rule: UI only uses 'name' field from server
+    const getCategoryName = (cat: Category) => cat.name || '';
 
     return (
         <div className="w-full overflow-x-auto pb-4 pt-2 no-scrollbar">

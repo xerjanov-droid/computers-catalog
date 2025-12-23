@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Category } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
+import { useAdminCategoryName } from '@/hooks/useAdminCategoryName';
 import {
     Plus, Search, MoreVertical, Edit, FolderPlus, Layers,
     Archive, GripVertical, ChevronRight, ChevronDown, Menu, List, Circle, Pin
@@ -27,10 +28,7 @@ export function CategoriesClient({ initialCategories }: Props) {
         setExpanded(newSet);
     };
 
-    const getCategoryName = (node: Category) => {
-        // Prefer language-specific field, then fallbacks
-        return (node as any)[`name_${language}`] || node.name_ru || node.name_uz || node.name_en || '';
-    };
+    const getCategoryName = useAdminCategoryName();
 
     // Filter Logic with Auto-Expand
     const filteredCategories = useMemo(() => {

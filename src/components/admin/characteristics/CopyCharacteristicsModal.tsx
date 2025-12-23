@@ -4,6 +4,7 @@ import { Dialog } from '@headlessui/react';
 import { X, Copy, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Category } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
+import { useAdminCategoryName } from '@/hooks/useAdminCategoryName';
 
 interface CopyCharacteristicsModalProps {
     isOpen: boolean;
@@ -29,7 +30,7 @@ export function CopyCharacteristicsModal({ isOpen, onClose, targetCategoryId, ta
         }
     }, [isOpen]);
 
-    const getCategoryName = (c: Category) => (c[`name_${language}` as keyof Category] as string) || c.name_ru || '';
+    const getCategoryName = useAdminCategoryName();
 
     const handleCopy = async () => {
         if (!sourceCategoryId || !targetCategoryId) return;

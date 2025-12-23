@@ -63,7 +63,7 @@ export function AdminSidebar() {
         <aside className="w-64 bg-white border-r flex flex-col h-full shadow-sm">
             <div className="p-6 border-b">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Admin Panel
+                    {t('nav.admin_panel')}
                 </h1>
             </div>
 
@@ -108,7 +108,7 @@ export function AdminSidebar() {
                 <form action="/api/auth/logout" method="POST">
                     <button className="flex items-center gap-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-xl font-medium transition-colors">
                         <LogOut className="w-5 h-5" />
-                        Logout
+                        {t('nav.logout')}
                     </button>
                 </form>
             </div>

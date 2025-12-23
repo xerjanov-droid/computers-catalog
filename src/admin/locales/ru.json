@@ -10,7 +10,10 @@
         "users": "Пользователи",
         "roles": "Роли",
         "settings": "Настройки",
-        "logs": "Логи"
+        "logs": "Логи",
+        "group_system": "СИСТЕМА",
+        "admin_panel": "Админ Панель",
+        "logout": "Выход"
     },
     "dashboard": {
         "title": "Дашборд",
@@ -112,5 +115,104 @@
         "users_count": "Польз.",
         "permissions": "Права доступа",
         "save_permissions": "Сохранить права"
+    },
+    "settings": {
+        "title": "Настройки",
+        "tabs": {
+            "general": "Общие настройки",
+            "localization": "Языки",
+            "catalog": "Настройки каталога",
+            "filters": "Настройки фильтров",
+            "orders": "Заказы / B2B",
+            "security": "Безопасность",
+            "system": "Система"
+        },
+        "sections": {
+            "general": {
+                "title": "General (Общие настройки)",
+                "subtitle": "Единый центр для всего проекта",
+                "project_name": "Название проекта (Project name)",
+                "default_language": "Язык по умолчанию",
+                "default_currency": "Валюта по умолчанию",
+                "date_format": "Формат даты",
+                "time_format": "Формат времени",
+                "timezone": "Часовой пояс"
+            },
+            "localization": {
+                "title": "Localization (Языки)",
+                "subtitle": "Какие языки активны и настройки по умолчанию",
+                "active_languages": "Какие языки активны",
+                "default_language": "Язык по умолчанию",
+                "fallback_language": "Резервный язык",
+                "fallback_hint": "Какой язык использовать при отсутствии перевода",
+                "warning": "⚠️ Если отключить языки здесь — UI автоматически адаптируется"
+            },
+            "catalog": {
+                "title": "Catalog Settings",
+                "subtitle": "Настройки, влияющие на продукты",
+                "price_visible": "Показывать цену по умолчанию",
+                "price_visible_hint": "Для новых продуктов цена будет включена",
+                "default_status": "Статус продукта по умолчанию",
+                "sku_auto": "Автоматическая генерация SKU",
+                "sku_auto_hint": "SKU будет создаваться автоматически",
+                "max_images": "Максимум изображений на продукт",
+                "max_image_size": "Максимальный размер изображения (МБ)"
+            },
+            "filters": {
+                "title": "Filters Settings",
+                "subtitle": "Настройки фильтров",
+                "show_on": "На какой странице показывать фильтры",
+                "hide_empty": "Скрывать пустые фильтры",
+                "hide_empty_hint": "Не показывать фильтры без продуктов"
+            },
+            "orders": {
+                "title": "Orders / B2B Settings",
+                "subtitle": "Настройки заказов и B2B",
+                "default_b2b_status": "Статус B2B по умолчанию",
+                "email_notifications": "Email уведомления",
+                "admin_notifications": "Уведомления админа",
+                "admin_notifications_hint": "Включить уведомления админ-панели"
+            },
+            "security": {
+                "title": "Security Settings",
+                "subtitle": "Настройки безопасности",
+                "session_timeout": "Таймаут сессии (мин)",
+                "login_attempt_limit": "Лимит попыток входа"
+            },
+            "system": {
+                "title": "System Settings",
+                "subtitle": "Системные настройки и управление",
+                "maintenance_mode": "Режим обслуживания",
+                "system_actions": "Системные действия"
+            }
+        },
+        "save": "Сохранить",
+        "saved": "Настройки сохранены",
+        "error": "Произошла ошибка",
+        "subtitle": "Управление настройками проекта"
+    },
+    "logs": {
+        "title": "Логи",
+        "subtitle": "Ответ на вопрос \"Кто что сделал\"",
+        "tabs": {
+            "audit": "Audit Logs (обязательно)",
+            "system": "System Logs"
+        },
+        "filters": "Фильтры",
+        "export": "Экспорт",
+        "no_logs": "Логи не найдены",
+        "no_system_logs": "Системные логи не найдены",
+        "table": {
+            "date": "Дата",
+            "user": "Пользователь",
+            "action": "Действие",
+            "object": "Объект",
+            "old_value": "Старое значение",
+            "new_value": "Новое значение",
+            "level": "Уровень",
+            "message": "Сообщение",
+            "error_code": "Код ошибки",
+            "ip": "IP адрес"
+        }
     }
 }

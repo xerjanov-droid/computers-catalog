@@ -13,7 +13,10 @@
         "logs": "Loglar",
         "group_catalog": "KATALOG",
         "group_sales": "SAVDO",
-        "group_users": "FOYDALANUVCHILAR"
+        "group_users": "FOYDALANUVCHILAR",
+        "group_system": "TIZIM",
+        "admin_panel": "Admin Panel",
+        "logout": "Chiqish"
     },
     "dashboard": {
         "title": "Boshqaruv paneli",
@@ -123,5 +126,102 @@
         "users_count": "Foyd.",
         "permissions": "Huquqlar",
         "save_permissions": "Saqlash"
+    },
+    "settings": {
+        "title": "Sozlamalar",
+        "tabs": {
+            "general": "Umumiy sozlamalar",
+            "localization": "Tillar",
+            "catalog": "Katalog sozlamalari",
+            "filters": "Filtrlar sozlamalari",
+            "orders": "Buyurtmalar / B2B",
+            "security": "Xavfsizlik",
+            "system": "Tizim"
+        },
+        "sections": {
+            "general": {
+                "title": "General (Umumiy sozlamalar)",
+                "subtitle": "Butun loyiha uchun bitta markaz",
+                "project_name": "Loyiha nomi (Project name)",
+                "default_language": "Default til",
+                "default_currency": "Default valyuta",
+                "date_format": "Sana formati",
+                "time_format": "Vaqt formati",
+                "timezone": "Timezone"
+            },
+            "localization": {
+                "title": "Localization (Tillar)",
+                "subtitle": "Qaysi tillar faol va default sozlamalari",
+                "active_languages": "Qaysi tillar faol",
+                "default_language": "Default til",
+                "fallback_language": "Fallback til",
+                "fallback_hint": "Tarjima yo'qligida qaysi til ishlatilsin",
+                "warning": "⚠️ Tillarni bu yerdan o'chirsang — UI avtomatik moslashadi"
+            },
+            "catalog": {
+                "title": "Catalog Settings",
+                "subtitle": "Mahsulotlarga ta'sir qiladigan sozlamalar",
+                "price_visible": "Narx ko'rsatish default holati",
+                "price_visible_hint": "Yangi mahsulotlar uchun narx ko'rsatish yoqilgan bo'ladi",
+                "default_status": "Default product status",
+                "sku_auto": "SKU auto-generate",
+                "sku_auto_hint": "SKU avtomatik yaratilsin",
+                "max_images": "Bir mahsulotga max rasm soni",
+                "max_image_size": "Rasm maksimal hajmi (MB)"
+            },
+            "filters": {
+                "title": "Filters Settings",
+                "subtitle": "Filtrlar sozlamalari",
+                "show_on": "Filtrlar qaysi sahifada chiqsin",
+                "hide_empty": "Bo'sh filtrlarni yashirish",
+                "hide_empty_hint": "Mahsulot yo'q bo'lgan filtrlarni ko'rsatmaslik"
+            },
+            "orders": {
+                "title": "Orders / B2B Settings",
+                "subtitle": "Buyurtmalar va B2B sozlamalari",
+                "default_b2b_status": "Default B2B status",
+                "email_notifications": "Email notification",
+                "admin_notifications": "Admin notification",
+                "admin_notifications_hint": "Admin panel xabarnomalarini yoqish"
+            },
+            "security": {
+                "title": "Security Settings",
+                "subtitle": "Xavfsizlik sozlamalari",
+                "session_timeout": "Session timeout (min)",
+                "login_attempt_limit": "Login attempt limit"
+            },
+            "system": {
+                "title": "System Settings",
+                "subtitle": "Tizim sozlamalari va boshqaruv",
+                "maintenance_mode": "Maintenance mode",
+                "system_actions": "Tizim amallari"
+            }
+        },
+        "save": "Saqlash",
+        "saved": "Sozlamalar saqlandi",
+        "error": "Xatolik yuz berdi"
+    },
+    "logs": {
+        "title": "Loglar",
+        "tabs": {
+            "audit": "Audit Logs (majburiy)",
+            "system": "System Logs"
+        },
+        "filters": "Filtrlar",
+        "export": "Eksport",
+        "no_logs": "Loglar topilmadi",
+        "no_system_logs": "System loglar topilmadi",
+        "table": {
+            "date": "Sana",
+            "user": "User",
+            "action": "Action",
+            "object": "Object",
+            "old_value": "Old value",
+            "new_value": "New value",
+            "level": "Level",
+            "message": "Message",
+            "error_code": "Error Code",
+            "ip": "IP Address"
+        }
     }
 }

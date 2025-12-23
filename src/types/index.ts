@@ -5,6 +5,7 @@ export interface Category {
     name_ru: string;
     name_uz: string;
     name_en: string;
+    name?: string; // Resolved name based on current language (for client-side use)
     icon?: string;
     order_index: number;
     is_active: boolean;

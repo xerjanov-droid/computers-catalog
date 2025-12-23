@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Product } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
+import { useAdminCategoryName } from '@/hooks/useAdminCategoryName';
 import { Plus, Search, Copy, Edit, Archive, Loader2 } from 'lucide-react';
 import { bulkUpdateStatus, duplicateProduct, updateProduct } from '@/app/actions/products';
 import Link from 'next/link';
@@ -20,10 +21,7 @@ export function ProductsClient({ stats, categories }: Props) {
     const searchParams = useSearchParams();
 
     // Helper to get localized category name
-    const getCategoryName = (category: any) => {
-        if (!category) return '';
-        return category[`name_${language}`] || category.name_ru || category.name_uz || category.name_en || '-';
-    };
+    const getCategoryName = useAdminCategoryName();
 
     // Helper to format price: "12 000 000"
     const formatPrice = (price: number | string) => {

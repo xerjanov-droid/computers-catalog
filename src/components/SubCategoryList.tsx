@@ -14,18 +14,12 @@ interface SubCategoryListProps {
 export function SubCategoryList({ subCategories, parentId }: SubCategoryListProps) {
     const searchParams = useSearchParams();
     const activeSub = searchParams.get('sub');
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     if (!subCategories || subCategories.length === 0) return null;
 
-    const getCategoryName = (cat: Category) => {
-        // Prefer server-provided `name` when available (SSR)
-        if ((cat as any).name) return (cat as any).name;
-        const lang = i18n.language as 'ru' | 'uz' | 'en';
-        if (lang === 'uz') return cat.name_uz || cat.name_ru;
-        if (lang === 'en') return cat.name_en || cat.name_ru;
-        return cat.name_ru;
-    };
+    // Golden Rule: UI only uses 'name' field from server
+    const getCategoryName = (cat: Category) => cat.name || '';
 
     const ACTIVE_STYLE = "bg-green-600 border-green-600 text-white";
     const INACTIVE_STYLE = "bg-white text-gray-600 border-gray-200 hover:bg-gray-50";

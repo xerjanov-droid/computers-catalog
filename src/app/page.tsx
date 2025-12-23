@@ -85,8 +85,9 @@ export default async function Home({
     category_name: p.category_name || p[`category_name_${lang}`] || p.category_name_en || p.category_name_ru || p.category_name_uz || null
   }));
 
-  // Prepare server-provided display name safely (cast to any for dynamic key)
-  const serverDisplayName = ((subId ? subCategories.find(s => s.id === subId) : activeRoot) as any)?.[`name_${lang}`];
+  // Prepare server-provided display name - use the resolved 'name' field from category
+  const selectedCategory = subId ? subCategories.find(s => s.id === subId) : activeRoot;
+  const serverDisplayName = selectedCategory?.name || null;
 
   // Hydration fix handled by wrapper now
 

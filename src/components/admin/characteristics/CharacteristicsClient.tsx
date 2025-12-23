@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Category, Characteristic } from '@/types';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
+import { useAdminCategoryName } from '@/hooks/useAdminCategoryName';
 import { Plus, Search, Pencil, Trash2, Check, X, Copy, ArrowLeft } from 'lucide-react';
 import { LinkCharacteristicModal } from './LinkCharacteristicModal';
 import { CharacteristicForm } from './CharacteristicForm';
@@ -22,9 +23,7 @@ interface CategoryCharacteristic extends Characteristic {
 export function CharacteristicsClient({ initialCategories }: Props) {
     const { t, language } = useAdminLanguage();
 
-    const getCategoryName = (c: Category): string => {
-        return (c[`name_${language}` as keyof Category] as string) || c.name_ru || '';
-    };
+    const getCategoryName = useAdminCategoryName();
     const getCharName = (c: Characteristic): string => {
         if (!c) return '';
         return (c[`name_${language}` as keyof Characteristic] as string) || c.name_ru || c.key || 'Unnamed';
