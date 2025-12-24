@@ -112,105 +112,104 @@
     "copy_from_existing": "Copy from existing",
     "copy_confirm_title": "Confirm Copy",
     "copy_confirm_question": "Do you want to copy all characteristics from \"{source}\" to \"{target}\"?",
-    "copy_confirm_message": "Existing attributes will be preserved."
-}
+    "copy_confirm_message": "Existing attributes will be preserved.",
     "settings": {
-    "title": "Settings",
-    "tabs": {
-        "general": "General Settings",
-        "localization": "Languages",
-        "catalog": "Catalog Settings",
-        "filters": "Filters Settings",
-        "orders": "Orders / B2B",
-        "security": "Security",
-        "system": "System"
+        "title": "Settings",
+        "subtitle": "Manage project settings",
+        "tabs": {
+            "general": "General Settings",
+            "localization": "Languages",
+            "catalog": "Catalog Settings",
+            "filters": "Filters Settings",
+            "orders": "Orders / B2B",
+            "security": "Security",
+            "system": "System"
+        },
+        "sections": {
+            "general": {
+                "title": "General Settings",
+                "subtitle": "Single center for the entire project",
+                "project_name": "Project name",
+                "default_language": "Default language",
+                "default_currency": "Default currency",
+                "date_format": "Date format",
+                "time_format": "Time format",
+                "timezone": "Timezone"
+            },
+            "localization": {
+                "title": "Localization",
+                "subtitle": "Which languages are active and default settings",
+                "active_languages": "Which languages are active",
+                "default_language": "Default language",
+                "fallback_language": "Fallback language",
+                "fallback_hint": "Which language to use when translation is missing",
+                "warning": "⚠️ If you disable languages here — UI will automatically adapt"
+            },
+            "catalog": {
+                "title": "Catalog Settings",
+                "subtitle": "Settings affecting products",
+                "price_visible": "Show price by default",
+                "price_visible_hint": "For new products, price will be enabled",
+                "default_status": "Default product status",
+                "sku_auto": "SKU auto-generate",
+                "sku_auto_hint": "SKU will be created automatically",
+                "max_images": "Max images per product",
+                "max_image_size": "Max image size (MB)"
+            },
+            "filters": {
+                "title": "Filters Settings",
+                "subtitle": "Filter settings",
+                "show_on": "Show filters on which page",
+                "hide_empty": "Hide empty filters",
+                "hide_empty_hint": "Don't show filters without products"
+            },
+            "orders": {
+                "title": "Orders / B2B Settings",
+                "subtitle": "Orders and B2B settings",
+                "default_b2b_status": "Default B2B status",
+                "email_notifications": "Email notifications",
+                "admin_notifications": "Admin notifications",
+                "admin_notifications_hint": "Enable admin panel notifications"
+            },
+            "security": {
+                "title": "Security Settings",
+                "subtitle": "Security settings",
+                "session_timeout": "Session timeout (min)",
+                "login_attempt_limit": "Login attempt limit"
+            },
+            "system": {
+                "title": "System Settings",
+                "subtitle": "System settings and management",
+                "maintenance_mode": "Maintenance mode",
+                "system_actions": "System actions"
+            }
+        },
+        "save": "Save",
+        "saved": "Settings saved",
+        "error": "An error occurred"
     },
-    "sections": {
-        "general": {
-            "title": "General Settings",
-            "subtitle": "Single center for the entire project",
-            "project_name": "Project name",
-            "default_language": "Default language",
-            "default_currency": "Default currency",
-            "date_format": "Date format",
-            "time_format": "Time format",
-            "timezone": "Timezone"
+    "logs": {
+        "title": "Logs",
+        "subtitle": "Answer to the question \"Who did what\"",
+        "tabs": {
+            "audit": "Audit Logs (required)",
+            "system": "System Logs"
         },
-        "localization": {
-            "title": "Localization",
-            "subtitle": "Which languages are active and default settings",
-            "active_languages": "Which languages are active",
-            "default_language": "Default language",
-            "fallback_language": "Fallback language",
-            "fallback_hint": "Which language to use when translation is missing",
-            "warning": "⚠️ If you disable languages here — UI will automatically adapt"
-        },
-        "catalog": {
-            "title": "Catalog Settings",
-            "subtitle": "Settings affecting products",
-            "price_visible": "Show price by default",
-            "price_visible_hint": "For new products, price will be enabled",
-            "default_status": "Default product status",
-            "sku_auto": "SKU auto-generate",
-            "sku_auto_hint": "SKU will be created automatically",
-            "max_images": "Max images per product",
-            "max_image_size": "Max image size (MB)"
-        },
-        "filters": {
-            "title": "Filters Settings",
-            "subtitle": "Filter settings",
-            "show_on": "Show filters on which page",
-            "hide_empty": "Hide empty filters",
-            "hide_empty_hint": "Don't show filters without products"
-        },
-        "orders": {
-            "title": "Orders / B2B Settings",
-            "subtitle": "Orders and B2B settings",
-            "default_b2b_status": "Default B2B status",
-            "email_notifications": "Email notifications",
-            "admin_notifications": "Admin notifications",
-            "admin_notifications_hint": "Enable admin panel notifications"
-        },
-        "security": {
-            "title": "Security Settings",
-            "subtitle": "Security settings",
-            "session_timeout": "Session timeout (min)",
-            "login_attempt_limit": "Login attempt limit"
-        },
-        "system": {
-            "title": "System Settings",
-            "subtitle": "System settings and management",
-            "maintenance_mode": "Maintenance mode",
-            "system_actions": "System actions"
+        "filters": "Filters",
+        "export": "Export",
+        "no_logs": "No logs found",
+        "no_system_logs": "No system logs found",
+        "table": {
+            "date": "Date",
+            "user": "User",
+            "action": "Action",
+            "object": "Object",
+            "old_value": "Old value",
+            "new_value": "New value",
+            "level": "Level",
+            "message": "Message",
+            "error_code": "Error Code",
+            "ip": "IP Address"
         }
-    },
-    "save": "Save",
-    "saved": "Settings saved",
-    "error": "An error occurred",
-    "subtitle": "Manage project settings"
-},
-"logs": {
-    "title": "Logs",
-    "subtitle": "Answer to the question \"Who did what\"",
-    "tabs": {
-        "audit": "Audit Logs (required)",
-        "system": "System Logs"
-    },
-    "filters": "Filters",
-    "export": "Export",
-    "no_logs": "No logs found",
-    "no_system_logs": "No system logs found",
-    "table": {
-        "date": "Date",
-        "user": "User",
-        "action": "Action",
-        "object": "Object",
-        "old_value": "Old value",
-        "new_value": "New value",
-        "level": "Level",
-        "message": "Message",
-        "error_code": "Error Code",
-        "ip": "IP Address"
     }
-}
 }

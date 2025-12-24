@@ -26,7 +26,7 @@ export default async function Home({
   let lang: 'ru' | 'uz' | 'en' = 'uz';
 
   try {
-    const cookieStore = nextCookies();
+    const cookieStore = await nextCookies();
     const cookieLang = cookieStore.get('active_lang')?.value;
     if (cookieLang && ['ru', 'uz', 'en'].includes(cookieLang)) {
       lang = cookieLang as 'ru' | 'uz' | 'en';
