@@ -10,7 +10,7 @@ async function checkLogsPermission(userId: number): Promise<boolean> {
         JOIN roles r ON u.role_id = r.id
         WHERE u.id = $1
     `, [userId]);
-    
+
     // If not found in users, try admin_users
     if (res.rows.length === 0) {
         res = await query(`
@@ -20,11 +20,11 @@ async function checkLogsPermission(userId: number): Promise<boolean> {
             WHERE au.id = $1
         `, [userId]);
     }
-    
+
     if (res.rows.length === 0) return false;
     const permissions = res.rows[0].permissions;
     const roleSlug = res.rows[0].slug;
-    
+
     // Super Admin and Manager can view logs
     if (roleSlug === 'super_admin' || roleSlug === 'manager' || permissions?.all === true) return true;
     return permissions?.logs === true || permissions?.logs?.includes?.('view');
@@ -33,7 +33,8 @@ async function checkLogsPermission(userId: number): Promise<boolean> {
 export async function GET(request: NextRequest) {
     try {
         const session = await getSession();
-        if (!session?.id) {
+
+        if (!session || typeof session !== 'object' || !('id' in session)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const format = searchParams.get('format') || 'csv';
         const logType = searchParams.get('type') || 'audit';
-        
+
         // Add type parameter to query
         const params: any[] = [];
         let paramIndex = 1;
