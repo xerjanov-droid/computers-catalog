@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
 import { Settings, Save, RefreshCw, AlertCircle } from 'lucide-react';
+import { Setting } from '@/services/settings.service';
 import { GeneralSettings } from './sections/GeneralSettings';
 import { LocalizationSettings } from './sections/LocalizationSettings';
 import { CatalogSettings } from './sections/CatalogSettings';
@@ -10,14 +11,6 @@ import { FiltersSettings } from './sections/FiltersSettings';
 import { OrdersSettings } from './sections/OrdersSettings';
 import { SecuritySettings } from './sections/SecuritySettings';
 import { SystemSettings } from './sections/SystemSettings';
-
-interface Setting {
-    id: number;
-    key: string;
-    value: any;
-    category: string;
-    description?: string;
-}
 
 interface Props {
     initialSettings: Record<string, Setting[]>;

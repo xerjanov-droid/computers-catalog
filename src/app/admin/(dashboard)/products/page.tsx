@@ -8,16 +8,27 @@ interface Props {
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-    // 1. Fetch Stats
-    // Using raw query for speed
-    const statsRes = await query(`
-        SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN status = 'in_stock' THEN 1 ELSE 0 END) as in_stock,
-            SUM(CASE WHEN status = 'pre_order' THEN 1 ELSE 0 END) as pre_order,
-            SUM(CASE WHEN status = 'showroom' THEN 1 ELSE 0 END) as showroom
-        FROM products
+    // 1. Fetch Stats (guard `status` column presence)
+    const prodStatusRes = await query(`
+        SELECT EXISTS(
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'products' AND column_name = 'status'
+        ) as has_status
     `);
+    const hasProductStatus = !!prodStatusRes.rows[0]?.has_status;
+
+    const statsRes = hasProductStatus
+        ? await query(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'in_stock' THEN 1 ELSE 0 END) as in_stock,
+                SUM(CASE WHEN status = 'pre_order' THEN 1 ELSE 0 END) as pre_order,
+                SUM(CASE WHEN status = 'showroom' THEN 1 ELSE 0 END) as showroom
+            FROM products
+        `)
+        : await query(`
+            SELECT COUNT(*) as total, 0 as in_stock, 0 as pre_order, 0 as showroom FROM products
+        `);
 
     const stats = {
         total: parseInt(statsRes.rows[0].total) || 0,

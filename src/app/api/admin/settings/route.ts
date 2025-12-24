@@ -37,11 +37,12 @@ async function checkSettingsPermission(userId: number): Promise<boolean> {
 export async function GET(request: NextRequest) {
     try {
         const session = await getSession();
-        if (!session?.id) {
+        if (!session || typeof session === 'string' || (session as any).id == null) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const hasPermission = await checkSettingsPermission(session.id as number);
+        const userId = Number((session as any).id) as number;
+        const hasPermission = await checkSettingsPermission(userId);
         if (!hasPermission) {
             return NextResponse.json({ error: 'Forbidden: No permission to view settings' }, { status: 403 });
         }
@@ -61,11 +62,12 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const session = await getSession();
-        if (!session?.id) {
+        if (!session || typeof session === 'string' || (session as any).id == null) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const hasPermission = await checkSettingsPermission(session.id as number);
+        const userId = Number((session as any).id) as number;
+        const hasPermission = await checkSettingsPermission(userId);
         if (!hasPermission) {
             return NextResponse.json({ error: 'Forbidden: No permission to edit settings' }, { status: 403 });
         }
@@ -77,13 +79,13 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid format: updates must be an array' }, { status: 400 });
         }
 
-        const result = await SettingsService.updateMany(updates, session.id as number);
+        const result = await SettingsService.updateMany(updates, userId);
         
         // Log the settings change
         await query(
             `INSERT INTO audit_logs (entity_type, entity_id, action, after_data, admin_user_id)
              VALUES ('settings', 0, 'update', $1::jsonb, $2)`,
-            [JSON.stringify({ updates }), session.id]
+            [JSON.stringify({ updates }), userId]
         );
 
         return NextResponse.json({ success: true, settings: result });
