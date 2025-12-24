@@ -5,7 +5,7 @@ import { SystemLogService } from '@/services/system-log.service';
 // Check if user has permission to view system logs (only Super Admin)
 async function checkSystemLogsPermission(userId: number): Promise<boolean> {
     const { query } = await import('@/lib/db');
-    
+
     // Try users table first, then admin_users
     let res = await query(`
         SELECT r.slug, r.permissions
@@ -13,7 +13,7 @@ async function checkSystemLogsPermission(userId: number): Promise<boolean> {
         JOIN roles r ON u.role_id = r.id
         WHERE u.id = $1
     `, [userId]);
-    
+
     // If not found in users, try admin_users
     if (res.rows.length === 0) {
         res = await query(`
@@ -23,10 +23,10 @@ async function checkSystemLogsPermission(userId: number): Promise<boolean> {
             WHERE au.id = $1
         `, [userId]);
     }
-    
+
     if (res.rows.length === 0) return false;
     const role = res.rows[0];
-    
+
     // Only Super Admin can view system logs
     return role.slug === 'super_admin' || role.permissions?.all === true;
 }
@@ -34,9 +34,11 @@ async function checkSystemLogsPermission(userId: number): Promise<boolean> {
 export async function GET(request: NextRequest) {
     try {
         const session = await getSession();
-        if (!session?.id) {
+
+        if (!session || typeof session !== 'object' || !('id' in session)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
 
         const hasPermission = await checkSystemLogsPermission(session.id as number);
         if (!hasPermission) {
