@@ -4,13 +4,21 @@ import { cookies } from 'next/headers';
 const SECRET = process.env.JWT_SECRET || 'secret';
 const COOKIE_NAME = 'admin_token';
 
+export interface Session {
+    id: number;
+    [key: string]: any;
+}
+
 export async function signToken(payload: any) {
     return jwt.sign(payload, SECRET, { expiresIn: '8h' });
 }
 
-export async function verifyToken(token: string) {
+export async function verifyToken(token: string): Promise<Session | null> {
     try {
-        return jwt.verify(token, SECRET);
+        const verified = jwt.verify(token, SECRET);
+        // jwt.verify may return string or object; normalize to Session or null
+        if (!verified || typeof verified === 'string') return null;
+        return verified as Session;
     } catch (e) {
         return null;
     }
@@ -31,7 +39,7 @@ export async function logout() {
     cookieStore.delete(COOKIE_NAME);
 }
 
-export async function getSession() {
+export async function getSession(): Promise<Session | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
     if (!token) return null;
