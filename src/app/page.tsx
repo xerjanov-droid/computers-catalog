@@ -1,3 +1,4 @@
+'use client';
 import { CategoryService } from '@/services/category.service';
 import { cookies as nextCookies } from 'next/headers';
 import { ProductService } from '@/services/product.service';
@@ -64,7 +65,7 @@ export default async function Home({
   const wifi = resolvedParams.wifi === 'true';
 
   // Sort parameter
-  const sort = typeof resolvedParams.sort === 'string' 
+  const sort = typeof resolvedParams.sort === 'string'
     ? resolvedParams.sort as 'popular' | 'newest' | 'price_asc' | 'price_desc' | 'stock' | 'name_asc'
     : 'popular'; // Default to popular
 
@@ -146,5 +147,25 @@ export default async function Home({
         <FloatingManagerButton />
       </main>
     </ClientOnly>
+  );
+}
+import { useEffect, useState } from 'react';
+
+export default function Page() {
+  const [lang, setLang] = useState('uz');
+
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user && user.language_code) {
+        setLang(user.language_code);
+      }
+    }
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      Til: {lang}
+    </div>
   );
 }
