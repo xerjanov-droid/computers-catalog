@@ -23,7 +23,7 @@ const dictionaries = {
 };
 
 export function AdminLanguageProvider({ children }: { children: React.ReactNode }) {
-    const [language, setLanguage] = useState<AdminLanguage>('ru');
+    const [language, setLanguage] = useState<AdminLanguage>('uz');
 
     useEffect(() => {
         // Init from shared localStorage key first, then fallback to admin-specific key

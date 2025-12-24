@@ -17,7 +17,8 @@ import {
     Settings,
     CheckCircle2,
     Loader2,
-    Image as ImageIcon
+    Image as ImageIcon,
+    X
 } from 'lucide-react';
 
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext';
@@ -152,6 +153,24 @@ export function ProductForm({ initialData }: ProductFormProps) {
         setSpecs(prev => ({ ...prev, [key]: value }));
     };
 
+    const generateArtikul = (mainCategoryId: number | undefined, subCategoryId: number | undefined): string => {
+        if (!mainCategoryId || !subCategoryId) return '';
+        
+        // Kategoriya va subkategoriya ma'lumotlarini topish
+        const mainCategory = categories.find(c => c.id === mainCategoryId);
+        const subCategory = categories.find(c => c.id === subCategoryId);
+        
+        // Slug yoki ID dan qisqa kod olish
+        let mainCode = mainCategory?.slug?.toUpperCase().substring(0, 3) || `C${mainCategoryId}`;
+        let subCode = subCategory?.slug?.toUpperCase().substring(0, 3) || `S${subCategoryId}`;
+        
+        // Timestamp dan oxirgi 4 raqam
+        const timestamp = Date.now().toString().slice(-4);
+        
+        // Format: {mainCode}-{subCode}-{timestamp}
+        return `${mainCode}-${subCode}-${timestamp}`;
+    };
+
     const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newCatId = Number(e.target.value);
         if (Object.keys(specs).length > 0) {
@@ -160,7 +179,42 @@ export function ProductForm({ initialData }: ProductFormProps) {
             }
             setSpecs({});
         }
-        setFormData(prev => ({ ...prev, category_id: newCatId }));
+        
+        // Avtomatik Artikul generatsiya qilish (faqat yangi mahsulot uchun)
+        if (!initialData && selectedMain && newCatId) {
+            const newArtikul = generateArtikul(selectedMain, newCatId);
+            setFormData(prev => ({ ...prev, category_id: newCatId, sku: newArtikul }));
+        } else {
+            setFormData(prev => ({ ...prev, category_id: newCatId }));
+        }
+    };
+
+    const handleCancel = () => {
+        // Filtrlarni saqlab qolish
+        const params = new URLSearchParams();
+        
+        const categoryId = searchParams.get('category_id');
+        const subcategoryId = searchParams.get('subcategory_id');
+        const status = searchParams.get('status');
+        const search = searchParams.get('search');
+        
+        if (categoryId && categoryId !== 'all') {
+            params.set('category_id', categoryId);
+        }
+        if (subcategoryId && subcategoryId !== 'all') {
+            params.set('subcategory_id', subcategoryId);
+        }
+        if (status && status !== 'all') {
+            params.set('status', status);
+        }
+        if (search) {
+            params.set('search', search);
+        }
+        
+        const queryString = params.toString();
+        const redirectUrl = queryString ? `/admin/products?${queryString}` : '/admin/products';
+        
+        router.push(redirectUrl);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -173,6 +227,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
         }
         if (!formData.model || !formData.model.trim()) {
             alert("Model is required!");
+            return;
+        }
+        if (!formData.title_uz || !formData.title_uz.trim()) {
+            alert("Title (UZ) is required!");
             return;
         }
 
@@ -255,8 +313,14 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                         className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all bg-gray-50 focus:bg-white"
                                         value={selectedMain}
                                         onChange={(e) => {
-                                            setSelectedMain(Number(e.target.value));
-                                            setFormData(prev => ({ ...prev, category_id: undefined })); // Reset sub
+                                            const newMainId = Number(e.target.value);
+                                            setSelectedMain(newMainId);
+                                            // Reset sub category va Artikul (yangi mahsulot uchun)
+                                            if (!initialData) {
+                                                setFormData(prev => ({ ...prev, category_id: undefined, sku: '' }));
+                                            } else {
+                                                setFormData(prev => ({ ...prev, category_id: undefined }));
+                                            }
                                         }}
                                     >
                                         <option value="">{t('filters.select_category', 'Select Main Category...')}</option>
@@ -344,27 +408,27 @@ export function ProductForm({ initialData }: ProductFormProps) {
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        {t('product_form.title_ru', 'Title (RU)')} <span className="text-red-500">*</span>
-                                    </label>
-                                    <input 
-                                        name="title_ru" 
-                                        required 
-                                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-50 focus:bg-white" 
-                                        value={formData.title_ru || ''} 
-                                        onChange={handleChange}
-                                        placeholder="Russian title"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        {t('product_form.title_uz', 'Title (UZ)')}
+                                        {t('product_form.title_uz', 'Title (UZ)')} <span className="text-red-500">*</span>
                                     </label>
                                     <input 
                                         name="title_uz" 
+                                        required 
                                         className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-50 focus:bg-white" 
                                         value={formData.title_uz || ''} 
                                         onChange={handleChange}
                                         placeholder="Uzbek title"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        {t('product_form.title_ru', 'Title (RU)')}
+                                    </label>
+                                    <input 
+                                        name="title_ru" 
+                                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-50 focus:bg-white" 
+                                        value={formData.title_ru || ''} 
+                                        onChange={handleChange}
+                                        placeholder="Russian title"
                                     />
                                 </div>
                                 <div>
@@ -582,24 +646,35 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     </div>
                 </div>
 
-                {/* Submit Button */}
-                <button 
-                    type="submit"
-                    disabled={loading} 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                    {loading ? (
-                        <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>{t('common.saving', 'Saving...')}</span>
-                        </>
-                    ) : (
-                        <>
-                            <Save className="w-5 h-5" />
-                            <span>{t('product_form.save_product', 'Save Product')}</span>
-                        </>
-                    )}
-                </button>
+                {/* Submit and Cancel Buttons */}
+                <div className="flex gap-4">
+                    <button 
+                        type="submit"
+                        disabled={loading} 
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>{t('common.saving', 'Saving...')}</span>
+                            </>
+                        ) : (
+                            <>
+                                <Save className="w-5 h-5" />
+                                <span>{t('product_form.save_product', 'Save')}</span>
+                            </>
+                        )}
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={loading}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-6 rounded-xl border-2 border-gray-300 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <X className="w-5 h-5" />
+                        <span>{t('common.cancel', 'Cancel')}</span>
+                    </button>
+                </div>
             </form>
 
             {/* Right Column: Images */}

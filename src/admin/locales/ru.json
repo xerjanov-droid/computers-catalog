@@ -57,7 +57,7 @@
         "product_details": "Детали товара",
         "product_images": "Изображения товара",
         "brand": "Бренд",
-        "sku": "SKU",
+        "sku": "Артикул",
         "localized_titles": "Локализованные названия",
         "title_ru": "Название (RU)",
         "title_uz": "Название (UZ)",
@@ -71,7 +71,7 @@
         "technical_specs": "Технические характеристики",
         "fields": "полей",
         "product_status": "Статус товара",
-        "save_product": "Сохранить товар",
+        "save_product": "Сохранить",
         "save_first": "Сначала сохраните товар, чтобы загрузить изображения"
     },
     "filters": {

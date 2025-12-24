@@ -47,7 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
                         <ProductCharacteristics product={product} />
                     </div>
 
-                    <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <div className="mt-auto pt-3 border-t border-gray-100">
                         <div className="flex flex-col">
                             {product.is_price_visible !== false ? (
                                 <>
@@ -62,9 +62,6 @@ export function ProductCard({ product }: ProductCardProps) {
                                 </span>
                             )}
                         </div>
-                        <button className="w-10 h-10 rounded-full bg-[var(--tg-theme-button-color)] flex items-center justify-center text-white text-xl shadow-lg active:scale-95 transition-transform">
-                            +
-                        </button>
                     </div>
                 </div>
             </div>

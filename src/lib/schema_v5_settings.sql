@@ -11,7 +11,7 @@ INSERT INTO settings (key, value, category, description) VALUES
 ('general', '{"project_name": "Antigravity Store", "logo_light": "", "logo_dark": "", "default_currency": "UZS", "date_format": "DD.MM.YYYY", "timezone": "Asia/Tashkent"}', 'general', 'General project settings') ON CONFLICT DO NOTHING;
 
 INSERT INTO settings (key, value, category, description) VALUES
-('localization', '{"active_languages": ["uz", "ru", "en"], "default_language": "ru", "fallback_language": "en", "missing_translation_behavior": "show_key"}', 'localization', 'Language settings') ON CONFLICT DO NOTHING;
+('localization', '{"active_languages": ["uz", "ru", "en"], "default_language": "uz", "fallback_language": "uz", "missing_translation_behavior": "show_key"}', 'localization', 'Language settings') ON CONFLICT DO NOTHING;
 
 INSERT INTO settings (key, value, category, description) VALUES
 ('catalog', '{"price_visible": true, "default_product_status": "in_stock", "sku_auto_generate": true, "max_images": 5, "max_image_size_mb": 5}', 'catalog', 'Catalog configuration') ON CONFLICT DO NOTHING;

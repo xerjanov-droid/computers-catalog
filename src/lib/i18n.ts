@@ -11,10 +11,12 @@ i18n
     .use(initReactI18next)
     .init({
         resources: {
-            en: { common: commonEn },
-            ru: { common: commonRu },
             uz: { common: commonUz },
+            ru: { common: commonRu },
+            en: { common: commonEn },
         },
+        // Don't set lng here - let LanguageDetector handle it
+        // This allows localStorage to be read first
         fallbackLng: "uz",
         supportedLngs: ["uz", "ru", "en"],
         ns: ["common"],
@@ -24,7 +26,7 @@ i18n
         },
         detection: {
                 // Use a single shared localStorage key so the whole UI uses the same selected language
-                order: ['telegram', 'localStorage', 'navigator'],
+                order: ['localStorage', 'telegram', 'navigator'],
                 caches: ['localStorage'],
                 // store & read language under this key so admin and public app can share it
                 lookupLocalStorage: 'active_lang',

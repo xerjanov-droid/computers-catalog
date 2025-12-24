@@ -60,7 +60,7 @@
         "product_details": "Mahsulot ma'lumotlari",
         "product_images": "Mahsulot rasmlari",
         "brand": "Brend",
-        "sku": "SKU",
+        "sku": "Artikul",
         "localized_titles": "Tarjimalar",
         "title_ru": "Nomi (RU)",
         "title_uz": "Nomi (UZ)",
@@ -74,7 +74,7 @@
         "technical_specs": "Texnik xususiyatlar",
         "fields": "maydon",
         "product_status": "Mahsulot holati",
-        "save_product": "Mahsulotni saqlash",
+        "save_product": "Saqlash",
         "save_first": "Rasm yuklash uchun avval mahsulotni saqlang"
     },
     "filters": {
